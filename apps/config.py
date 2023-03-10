@@ -13,7 +13,7 @@ class Config(object):
     ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets')  
     
     # Set up the App SECRET_KEY
-    SECRET_KEY  = os.getenv('SECRET_KEY', '192b9bdd22ab9ed4d12e236c78afcb9a393ec15f71bbf5dc987d54727823bcbf')
+    SECRET_KEY  = os.getenv('SECRET_KEY', None)
     if not SECRET_KEY:
         SECRET_KEY = ''.join(random.choice( string.ascii_lowercase  ) for i in range( 32 ))     
 
@@ -64,7 +64,7 @@ class ProductionConfig(Config):
     REMEMBER_COOKIE_DURATION = 3600
 
 class DebugConfig(Config):
-    DEBUG = False
+    DEBUG = True
 
 
 # Load all possible configurations
