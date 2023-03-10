@@ -1,0 +1,783 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Event {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://kit.fontawesome.com/ba212557d7.css" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/ba212557d7.js" crossorigin="anonymous"></script>
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/static/assets/css/adminlte.min.css">
+
+  <!-- DataTables -->
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+<!-- Modal -->
+<div class="modal fade" id="addChoreography" tabindex="-1" role="dialog" aria-labelledby="addChoreography" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New choreography / Nova koreografija</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="addChoreography" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="id_event" id="id_event" value="{{ data.id }}">
+          <div class="card-body">
+            <div class="form-group">
+              <label for="name">Add coreography / Ime koreografije</label>
+              <input type="text" class="form-control" id="choreography" name="choreography" placeholder="Add coreography / Ime koreografije">
+            </div>
+            <div class="form-group">
+              <label for="name">Add choreograph / Ime koreografa</label>
+              <input type="text" class="form-control" id="choreograph" name="choreograph" placeholder="Add choreograph / Ime koreografa">
+            </div>
+            <div class="form-group">
+                <label for="name">Dance category / Plesna kategorija</label>
+                <select class="form-control" id="category" name="category">
+                    <option></option>
+                    {% for c in category %}
+                        <option value="{{ c.id }}">{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="name">Dance discipline / Plesna disciplina</label>
+                <select class="form-control" id="discipline" name="discipline">
+                    <option></option>
+                    {% for d in discipline %}
+                        <option value="{{ d.id }}" data-ref="{{ d.use_ref_date }}">{{ d.discipline }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="name">Age category / Dobna skupina</label>
+                <select class="form-control" id="age_group" name="age_group">
+                    <option></option>
+                    {% for ag in age_group %}
+                        <option value="{{ ag.id }}" data-ref="{{ ag.use_average }}">{{ ag.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+              <label for="name">Federation / Federacija</label>
+              <select class="form-control" id="federation" name="federation">
+                  <option></option>
+                  {% for f in federation %}
+                      <option value="{{ f.id }}">{{ f.name }}</option>
+                  {% endfor %}
+              </select>
+          </div>
+          <div class="form-group">
+            <label for="name">Level / Razina</label>
+            <select class="form-control" id="level" name="level" >
+                <option></option>
+                {% for l in level %}
+                    <option value="{{ l.id }}">{{ l.name }}</option>
+                {% endfor %}
+            </select>
+          </div>
+            <div class="form-group">
+                <label for="description">Select dancers / Izaberi plesače</label>
+                <div class="row">
+                  {% for d in dancers %}
+                    <div class="col-3">
+                      <div class="form-check">     
+                        <input class="form-check-input" name="dancers" value="{{ d.id }}" data-datum="{{ d.birth_date }}" type="checkbox" id="d{{ d.id }}">         
+                        <label class="form-check-label" for="d{{ d.id }}">{{ d.name }}</label>        
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+									<label for="broj plesaca">Number of dancers / Broj plesača</label>
+									<input type="text" class="form-control" name="number_of_dancers" id="number_of_dancers" placeholder="Number of dancers / Broj plesača" readonly="readonly" disabled="disabled"> 
+								</div>
+            <div class="form-group">
+              <label for="song">Glazba</label><br>
+              <input type="file" name="audio" id="audio" accept=".mp3,.mp4,.wma,.wav">
+            </div>
+            <div class="form-group">
+                <label for="name">Song author / Autor pjesme</label>
+                <input type="text" class="form-control" id="song_author" name="song_author" placeholder="Song author / Autor pjesme">
+            </div>
+            <div class="form-group">
+                <label for="name">Song name / Naziv pjesme</label>
+                <input type="text" class="form-control" id="song_name" name="song_name" placeholder="Song name / Naziv pjesme">
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="gdpr" required>
+              <label class="form-check-label" for="exampleCheck1">Slažem se s člankom 13 GDPR-a /
+                I declare that I have read the information that is required in accordance with Article 13 of GDPR.</label>
+            </div>
+          </div>
+          <!-- /.card-body -->
+
+          <div class="card-footer">
+           <span  class="btn btn-primary btn-square" onclick="checkDancers()">Provjera dancers</span>
+            <button type="submit" class="btn btn-primary btn-square">Submit</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-square" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10">Koregrafije</h5>
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Koregrafije</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <strong>{{ data.name }}</strong><br>
+                                                Od / From: <strong>{{ data.event_from }}</strong><br>
+                                                Do / To: <strong>{{ data.event_to }}</strong><br>
+                                                Opis / Description: <strong>{{ data.description }}</strong><br>
+                                            </div>
+                                            <div class="col-sm-6" style="text-align:right;">
+                                                <img src="{{ data.image }}" style="max-width:300px;">
+                                            </div>
+                                        </div>
+                                        {% if current_user.role == 'user' %}
+                                        <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#addChoreography">
+                                          Prijavi koreografiju / Add choreography
+                                        </button>
+                                        {% endif %}
+                                        </div>
+                                        <div class="card-block">
+                                        <table id="applications" class="table table-bordered table-hover">
+                                          <thead>
+                                            <tr>
+                                              <th>#</th>
+                                              <th>Datum</th>
+                                              <th>choreography</th>
+                                              <th>age_group</th>
+                                              <th>discipline</th>
+                                              <th>category</th>
+                                              <th>federation</th>
+                                              <th>level</th>
+                                              <th>plesaci</th>
+                                              <th>audio</th>
+                                              <th></th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {% for a in applications %}
+                                            <tr>
+                                              <td>{{ loop.index }}</td>
+                                              <td>{{ a.entered_date }}</td>
+                                              <td>{{ a.choreography }} / {{ a.choreograph }}</td>
+                                              <td>{{ a.age_group_name }}</td>
+                                              <td>{{ a.discipline_name }}</td>
+                                              <td>{{ a.category_name }}</td>
+                                              <td>{{ a.federation_name }}</td>
+                                              <td>{{ a.level_name }}</td>
+                                              <td>
+                                                <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#dancers_{{ a.id }}">
+                                                  <i class="feather icon-users"></i>
+                                                </button>
+                                              </td>
+                                              <td>
+                                                <audio title="{{ a.song_author }} / {{ a.song_name }}" controls>
+                                                  <source src="{{ a.song }}" type="audio/wav">
+                                                </audio>
+                                              </td>
+                                              <td>
+                                                <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#editApplication_{{ a.id }}">
+                                                  <i class="feather icon-edit"></i>
+                                                </button>
+                                                <form action="deleteChoreography" method="post" style="display:inline">
+                                                  <input type="hidden" name="id" id="id" value="{{ a.id }}">
+                                                  <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></button>
+                                                </form>
+                                              </td>
+                                            </tr>
+                                            {% endfor %}
+                                          </tbody>
+                                        </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% for a in applications %}
+  
+    <!-- Modal dancers -->
+    <div class="modal fade" id="dancers_{{ a.id }}" tabindex="-1" role="dialog" aria-labelledby="dancers_{{ a.id }}" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Dancers for application / Plesači za prijavu {{ a.choreography }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="col-sm-12">
+              <div class="row">
+                <div class="col-sm-3"><h3>Ime</h3></div>
+                <div class="col-sm-3"><h3>Prezime</h3></div>
+                <div class="col-sm-3"><h3>Datum</h3></div>
+                <div class="col-sm-3"><h3>Slika</h3></div>
+               
+              </div>
+              <hr>
+            </div>
+            {% for d in a.dancers %}
+            <div class="col-sm-12">
+              <div class="row">
+                <div class="col-sm-3">{{ d.name }}</div>
+                <div class="col-sm-3">{{ d.lastname }}</div>
+                <div class="col-sm-3">{{ d.birth_date }}</div>
+                <div class="col-sm-3"><img src="{{ d.picture }}" style="max-width:50px;"></div>
+              </div>
+              <hr>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-square" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- end of modal -->
+  
+{% endfor %}
+
+{% for a in applications %}
+  <!-- Modal -->
+<div class="modal fade" id="editApplication_{{ a.id }}" tabindex="-1" role="dialog" aria-labelledby="editApplication_{{ a.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit application / Uredi prijavu {{ a.id }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="editChoreography" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="id" id="id_edit_{{ a.id }}" value="{{ a.id }}">
+          <input type="hidden" name="id_event" id="id_event_edit_{{ a.id }}" value="{{ data.id }}">
+          <div class="card-body">
+            <div class="form-group">
+              <label for="name">Add coreography / Ime koreografije</label>
+              <input type="text" class="form-control" id="choreography_edit_{{ a.id }}" name="choreography" value="{{a.choreography}}">
+            </div>
+            <div class="form-group">
+              <label for="name">Add choreograph / Ime koreografa</label>
+              <input type="text" class="form-control" id="choreograph_edit_{{ a.id }}" name="choreograph" value="{{a.choreograph}}">
+            </div>
+            <div class="form-group">
+                <label for="name">Dance category / Plesna kategorija</label>
+                <input type="hidden" id="category" name="category" value="{{ a.category }}" readonly>
+                <input type="text" class="form-control" id="category_show_edit_{{ a.id }}" name="category_show" value="{{ a.category_name }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="name">Dance discipline / Plesna disciplina</label>
+                <input type="hidden" id="discipline" name="discipline" value="{{ a.discipline }}" readonly>
+                <input type="text" class="form-control" id="discipline_show_edit_{{ a.id }}" name="discipline_show" value="{{ a.discipline_name }}" readonly>
+            </div>
+            <div class="form-group">
+                <label for="name">Age category / Dobna skupina</label>
+                <input type="hidden" id="age_group" name="age_group" value="{{ a.age_group }}" readonly>
+                <input type="text" class="form-control" id="age_group_show_edit_{{ a.id }}" name="age_group_show" value="{{ a.age_group_name }}" readonly>
+            </div>
+            <div class="form-group">
+              <label for="name">Federation / Federacija</label>
+              <input type="hidden" id="federation" name="federation" value="{{ a.federation }}">
+              <input type="text" class="form-control" id="federation_show_edit_{{ a.id }}" name="federation_show" value="{{ a.federation_name }}" readonly>
+          </div>
+          <div class="form-group">
+            <label for="name">Level / Razina</label>
+            <input type="hidden" id="level" name="level" value="{{ a.level }}">
+            <input type="text" class="form-control" id="level_show_edit_{{ a.id }}" name="level_show" value="{{ a.level_name }}" readonly>
+        </div>
+            <div class="form-group">
+                <label for="description">Select dancers / Izaberi plesače</label>
+                <div class="row">
+
+                  {% for d in dancers %}
+                    {% set dev = namespace(value=0) %}
+                    {% for d2 in a.dancers %}
+                      {% if d.id == d2.id %} 
+                        {% set dev.value = dev.value + 1 %}
+                      {% endif %}
+                    {% endfor %}
+                    <div class="col-3">
+                      <div class="form-check">
+                        <input class="form-check-input" {% if dev.value == 1 %} checked {% endif %} name="dancers" value="{{ d.id }}" data-datum="{{ d.birth_date }}" type="checkbox" id="d_edit_{{ d.id }}">
+                        <label class="form-check-label" for="d{{ d.id }}">{{ d.name }}</label>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+              <label for="song">Glazba</label><br>
+              <input type="file" name="audio" id="audio_edit_{{ a.id }}" accept=".mp3,.mp4,.wma,.wav">
+            </div>
+            <div class="form-group">
+                <label for="name">Song author / Autor pjesme</label>
+                <input type="text" class="form-control" id="song_author_edit_{{ a.id }}" name="song_author" value="{{a.song_author}}">
+            </div>
+            <div class="form-group">
+                <label for="name">Song name / Naziv pjesme</label>
+                <input type="text" class="form-control" id="song_name_edit_{{ a.id }}" name="song_name" value="{{a.song_name}}">
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="gdpr_edit_{{ a.id }}" required>
+              <label class="form-check-label" for="exampleCheck1">Slažem se s člankom 13 GDPR-a /
+                I declare that I have read the information that is required in accordance with Article 13 of GDPR.</label>
+            </div>
+          </div>
+          <!-- /.card-body -->
+
+          <div class="card-footer">
+            <button type="submit" class="btn btn-primary btn-square">Update / Ažuriraj</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-square" data-dismiss="modal">Close / Zatvori</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+  <!-- jQuery -->
+  <script src="/static/assets/plugins/jquery/jquery.min.js"></script>
+  <!-- Bootstrap 4 -->
+  <script src="/static/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- DataTables -->
+  <script src="/static/assets/plugins/datatables/jquery.dataTables.min.js"></script>
+  <script src="/static/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+  <script src="/static/assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+  <script src="/static/assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+  <!-- AdminLTE App -->
+  <script src="/static/assets/js/adminlte.min.js"></script>
+  <!-- AdminLTE for demo purposes -->
+  <script src="/static/assets/js/demo.js"></script>
+
+  <script>
+   $(document).ready(function () {
+     $('#applications').DataTable({
+      "paging": true,
+        "searching": true,
+        "ordering": true,
+        "responsive": false,
+     });
+   });
+  </script>
+
+  <script>
+		function audioShow(id,akcija)
+		{
+			if(akcija == "play")
+			{
+				$("#play_"+id).hide();
+				$("#stop_"+id).show();
+			}
+			else
+			{
+				$("#stop_"+id).hide();
+				$("#play_"+id).show();
+			}
+		}
+		
+  </script>
+  <script>
+    var referentni_datum = [{"referentni_datum":"{{ data.reference_date }}"}];
+    var pocetni_datum = [{"do":"{{ data.event_to }}"}];
+    var dobne_skupine = [ {% for ag in age_group %}{{ ag|tojson|safe }}{% if loop.last  %}{% else %},{% endif %}{% endfor %} ];
+    var minYears;
+    var maxYears;
+    var dobnaSkupinaOdabrana = document.getElementById("age_group").value;
+    
+      dobne_skupine.forEach(function(element)
+      {
+        if(element.id == dobnaSkupinaOdabrana)
+        {
+          minYears = element.min_years;
+          maxYears = element.max_years;
+        }
+      })
+      
+      document.getElementById("age_group").addEventListener("change", function()
+      {
+        dobnaSkupinaOdabrana = this.value;		
+        dobne_skupine.forEach(function(element)
+        {
+          if(element.id == dobnaSkupinaOdabrana)
+          {
+            minYears = element.min_years;
+            maxYears = element.max_years;
+          }
+        })
+      });
+    
+    var federacije = [ {% for f in federation %}{{ f|tojson|safe }}{% if loop.last  %}{% else %},{% endif %}{% endfor %} ];
+    var kategorije = [ {% for c in category %}{{ c|tojson|safe }}{% if loop.last  %}{% else %},{% endif %}{% endfor %} ];
+    var discipline = [ {% for d in discipline %}{{ d|tojson|safe }}{% if loop.last  %}{% else %},{% endif %}{% endfor %} ];
+    var minNum;
+    var MaxNum;
+    var categoryOdabrana = document.getElementById("category").value;
+      
+      kategorije.forEach(function(element)
+      {
+        if(element.id == categoryOdabrana)
+        {
+          minNum = element.min_dancers;
+          maxNum = element.max_dancers;
+        }
+      })
+      
+      document.getElementById("federation").addEventListener("change", function()
+      {
+        federationOdabrana = this.value;	
+        
+        var xhttp2 = new XMLHttpRequest();
+        var url2 = '_get_kategorije.php';
+        var params2 = 'id_federacije='+federationOdabrana;
+        xhttp2.open("POST", url2, true);
+        xhttp2.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhttp2.onreadystatechange = function() 
+        {
+          if (this.readyState == 4 && this.status == 200) 
+          {				
+            var select = document.getElementById("category");
+            var length = select.options.length;
+            for (i = length-1; i >= 0; i--)
+            {
+              select.options[i] = null;
+            }
+              
+            if(this.responseText != 'null')
+            {
+              var option_for_kategorije_default = document.createElement("option");
+              option_for_kategorije_default.setAttribute('value', '');
+              select.appendChild(option_for_kategorije_default);
+              
+              moguce_kategorije = jQuery.parseJSON(this.responseText);	
+              $.each( kategorije, function( key, value ) 
+              {
+                if(moguce_kategorije.includes(value.id))
+                {
+                  var option_for_kategorije = document.createElement("option");
+                  option_for_kategorije.setAttribute('value', value.id);
+                  option_for_kategorije.innerHTML = value.category;
+                  select.appendChild(option_for_kategorije);
+                }
+              });						
+            }
+          }
+        };		
+        xhttp2.send(params2);
+      });
+      
+      document.getElementById("category").addEventListener("change", function()
+      {
+        categoryOdabrana = this.value;	
+    
+        var xhttp = new XMLHttpRequest();
+        var url = '_get_discipline.php';
+        var params = 'id_kategorije='+categoryOdabrana;
+        xhttp.open("POST", url, true);
+        xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhttp.onreadystatechange = function() 
+        {
+          if (this.readyState == 4 && this.status == 200) 
+          {	
+            var select = document.getElementById("discipline");
+            var length = select.options.length;
+            for (i = length-1; i >= 0; i--)
+            {
+              select.options[i] = null;
+            }
+              
+            if(this.responseText != 'null')
+            {
+              var option_for_discipline_default = document.createElement("option");
+              option_for_discipline_default.setAttribute('value', '');
+              select.appendChild(option_for_discipline_default);
+                  
+              moguce_discipline = jQuery.parseJSON(this.responseText);	
+              $.each( discipline, function( key, value ) 
+              {
+                if(moguce_discipline.includes(value.id))
+                {
+                  var option_for_discipline = document.createElement("option");
+                  option_for_discipline.setAttribute('value', value.id);
+                  option_for_discipline.setAttribute('data-ref', value.use_ref_date);
+                  option_for_discipline.innerHTML = value.discipline;
+                  select.appendChild(option_for_discipline);
+                }
+              });						
+            }
+          }
+        };		
+        xhttp.send(params);
+        
+        kategorije.forEach(function(element)
+        {
+          if(element.id == categoryOdabrana)
+          {
+            minNum = element.min_dancers;
+            maxNum = element.max_dancers;
+          }
+        })
+        $('.plesaci :checkbox').each(function() 
+        {
+          this.checked = false;
+        });
+        document.getElementById("number_of_dancers").value = "";
+      });
+      
+      document.getElementById("discipline").addEventListener("change", function()
+      {
+        disciplineOdabrana = this.value;	
+        
+        var xhttp2 = new XMLHttpRequest();
+        var url2 = '_get_dobne_skupine.php';
+        var params2 = 'id_discipline='+disciplineOdabrana;
+        xhttp2.open("POST", url2, true);
+        xhttp2.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhttp2.onreadystatechange = function() 
+        {
+          if (this.readyState == 4 && this.status == 200) 
+          {
+            
+            var select = document.getElementById("age_group");
+            var length = select.options.length;
+            for (i = length-1; i >= 0; i--)
+            {
+              select.options[i] = null;
+            }
+              
+            if(this.responseText != 'null')
+            {
+              var option_for_dobne_skupine_default = document.createElement("option");
+              option_for_dobne_skupine_default.setAttribute('value', '');
+              select.appendChild(option_for_dobne_skupine_default);
+              
+              moguce_dobne_skupine = jQuery.parseJSON(this.responseText);	
+              $.each( dobne_skupine, function( key, value ) 
+              {
+                if(moguce_dobne_skupine.includes(value.id))
+                {
+                  var option_for_dobne_skupine = document.createElement("option");
+                  option_for_dobne_skupine.setAttribute('value', value.id);
+                  option_for_dobne_skupine.setAttribute('data-ref', value.use_average);
+                  option_for_dobne_skupine.innerHTML = value.age_group;
+                  select.appendChild(option_for_dobne_skupine);
+                }
+              });						
+            }
+          }
+        };		
+        xhttp2.send(params2);
+      });
+      
+
+
+      $("#addChoreography input[name='dancers']").click(function()
+      {
+        var use_average = $('#age_group option:selected').attr('data-ref');
+        var cs = $("#addChoreography input[name='dancers']:checked").length;
+        if ( cs > maxNum)
+        {
+          this.checked = false;
+          alert("Odabran je maksimalni broj plesača / Maximum number of dancers selected");
+        }
+        else
+        {
+          if(use_average == 0)
+          {
+            if(this.checked == true)
+            {
+              var datum_rodenja = $(this).attr('data-datum');
+              if(discipline == 1)
+              {
+                var godine = checkPlesacGodine(datum_rodenja,referentni_datum[0].referentni_datum);
+              }
+              else
+              {
+                var godine = checkPlesacGodine(datum_rodenja,pocetni_datum[0].do);
+              }
+              
+              if(godine > maxYears || godine < minYears)
+              {
+                this.checked = false;
+                alert("Plesač ne spada u odabranu dobnu skupn / Dancer does not belong to selected age category");
+              }
+            }
+            $cs = $(this).closest('.plesaci').find(':checkbox:checked');
+          }
+    
+          document.getElementById("number_of_dancers").value = cs;
+          //this.checked = true;
+        }
+      });
+      
+    function getCheckedBoxes(chkboxName)
+    {
+      var checkboxes = $("#addChoreography input[name='"+chkboxName+"']:checked");
+      var checkboxesChecked = [];
+      for (var i=0; i<checkboxes.length; i++)
+      {
+        checkboxesChecked.push(checkboxes[i].getAttribute('data-datum'));
+      }
+      return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+    }
+    
+    function checkPlesacGodine(plesac,refDatum)
+    {
+      var razlika = dateDiff(plesac, refDatum);
+      return razlika;
+    }
+    
+    function getProsjekGodina(checkedBoxovi,refDatum)
+    {
+      var ukupno = 0;
+      var prosjek = 0;
+      var godine = new Array();
+      checkedBoxovi.forEach(function(element){
+        var razlika = dateDiff(element, refDatum);
+        godine.push(razlika);
+      });
+      ukupno = godine.reduce((a, b) => a + b, 0);
+      prosjek = ukupno / godine.length;
+      return prosjek;
+    }
+    
+    function dateDiff(oldD, newD)
+    {
+      var dateold = new Date(oldD);
+      var datenew = new Date(newD);
+    
+      var ynew = datenew.getFullYear();
+      var mnew = datenew.getMonth();
+      var dnew = datenew.getDate();
+      var yold = dateold.getFullYear();
+      var mold = dateold.getMonth();
+      var dold = dateold.getDate();
+      var diff = ynew - yold;
+      if(mold > mnew)
+      {
+        diff--;
+      }
+      else
+      {
+        if(mold == mnew)
+        {
+          if(dold > dnew) 
+          {
+            diff--;
+          }
+        }
+      }
+      return diff;
+    }
+  </script>
+
+  <script>
+    function checkDancers()
+    {
+      var category = document.getElementById("category").value;
+      var discipline = $('#discipline option:selected').attr('data-ref');
+      var odabrano = document.getElementById("number_of_dancers").value;
+      kategorije.forEach(function(element){
+        if(element.id == category)
+        {
+          if(odabrano >= parseInt(element.min_dancers) && odabrano <= parseInt(element.max_dancers))
+          {
+            var checkedBoxes = getCheckedBoxes("dancers");
+            var prosjekGodina;
+            if(discipline == 1)
+            {
+              prosjekGodina = getProsjekGodina(checkedBoxes,referentni_datum[0].referentni_datum);
+            }
+            else
+            {
+              prosjekGodina = getProsjekGodina(checkedBoxes,pocetni_datum[0].do);
+            }					
+            if(prosjekGodina >= minYears && prosjekGodina <= maxYears)
+            {
+              alert("Prosjek godina zadovoljen / The average of years is met");
+            }
+            else
+            {						
+              alert("Prosjek godina nije zadovoljen / The average of years is not met");
+            }								
+          }
+          else
+          {
+            alert("Nije odabran minimalni broj plesača / Minimum number of dancers is not selected");
+            return false;
+          }
+        }
+      })
+    }
+  </script>
+
+{% endblock javascripts %}

@@ -1,0 +1,221 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Events {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+  <!-- Modal -->
+  <div class="modal fade" id="addEvent" tabindex="-1" role="dialog" aria-labelledby="addEvent" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">New event / Novi event</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="addEvent" method="post" enctype="multipart/form-data">
+            <div class="card-body">
+              <div class="form-group">
+                <label for="name">Ime eventa</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Ime eventa">
+              </div>
+              <div class="form-group">
+                <label for="name">Od</label>
+                <input type="date" class="form-control" id="event_from" name="event_from">
+              </div>
+              <div class="form-group">
+                <label for="name">Do</label>
+                <input type="date" class="form-control" id="event_to" name="event_to">
+              </div>
+              <div class="form-group">
+                <label for="name">Referentni datum</label>
+                <input type="date" class="form-control" id="reference_date" name="reference_date">
+              </div>
+              <div class="form-group">
+                <label for="picture">Slika</label><br>
+                <input type="file" name="picture" id="picture" accept="image/*">
+              </div>
+              <div class="form-group">
+                <label for="description">Opis</label>
+                <input type="text" class="form-control" id="description" name="description" placeholder="Opis">
+              </div>
+              <div class="form-group">
+                <label for="description">Discipline</label>
+                <div class="row">
+                  {% for d in discipline %}
+                    <div class="col-3">
+                      <div class="form-check">     
+                        <input class="form-check-input" name="discipline" value="{{ d.id }}" type="checkbox" id="d{{ d.id }}">         
+                        <label class="form-check-label" for="d{{ d.id }}">{{ d.discipline }}</label>        
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="form-group">
+                  <label for="description">Dobne skupine</label>
+                  <div class="row">
+                    {% for ag in age_group %}
+                      <div class="col-3">
+                        <div class="form-check">     
+                          <input class="form-check-input" name="age_group" value="{{ ag.id }}" type="checkbox" id="ag{{ ag.id }}">         
+                          <label class="form-check-label" for="ag{{ ag.id }}">{{ ag.name }}</label>        
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+              </div>
+              <div class="form-group">
+                <label for="description">Kategorije</label>
+                <div class="row">
+                  {% for c in category %}
+                    <div class="col-3">
+                      <div class="form-check">     
+                        <input class="form-check-input" name="category" value="{{ c.id }}" type="checkbox" id="c{{ c.id }}">         
+                        <label class="form-check-label" for="c{{ c.id }}">{{ c.name }}</label>        
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="description">Razine</label>
+                <div class="row">
+                  {% for l in level %}
+                    <div class="col-3">
+                      <div class="form-check">     
+                        <input class="form-check-input" name="level" value="{{ l.id }}" type="checkbox" id="l{{ l.id }}">         
+                        <label class="form-check-label" for="l{{ l.id }}">{{ l.name }}</label>        
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="description">Federacije</label>
+                <div class="row">
+                  {% for f in federation %}
+                    <div class="col-3">
+                      <div class="form-check">     
+                        <input class="form-check-input" name="federation" value="{{ f.id }}" type="checkbox" id="f{{ f.id }}">         
+                        <label class="form-check-label" for="l{{ f.id }}">{{ f.name }}</label>        
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="gdpr" required>
+                <label class="form-check-label" for="exampleCheck1">Slažem se s člankom 13 GDPR-a /
+                  I declare that I have read the information that is required in accordance with Article 13 of GDPR.</label>
+              </div>
+            </div>
+            <!-- /.card-body -->
+
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary btn-square">Submit</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-square" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- [ Main Content ] start -->
+  <div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+                <div class="page-header">
+                    <div class="page-block">
+                        <div class="row align-items-center">
+                            <div class="col-md-12">
+                                <div class="page-header-title">
+                                    <h5 class="m-b-10">Events</h5>
+                                </div>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="javascript:">Events</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                      {% if current_user.role == 'organizer' %}
+                                      <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#addEvent">Novi event / New event</button>
+                                      {% endif %}
+                                    </div>
+                                    <div class="card-block">
+                                      {% for event in data %}
+                                      <div class="col-sm-4">
+                                        <div class="card">
+                                          <div class="card-header">
+                                            <div style="text-align:center"><img src="{{ event.image }}" style="max-width:300px;"></div>
+                                            <br><br>
+                                            <div class="row">
+                                              <div class="col-sm-8">
+                                                <strong>{{ event.name }}</strong><br>Od / From: {{ event.event_from }}<br>Do / To: {{ event.event_to }}
+                                              </div>
+                                              <div class="col-sm-4">
+                                                <a class="btn btn-success btn-square" href="event.html?id={{ event.id }}">Prijavi se / Apply</a>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="card-body">
+                                            <div class="col-sm-12"><p>{{ event.description }}</p></div>
+                                            {% if current_user.role == 'organizer' %}
+                                              <form action="deleteEvent" method="post">
+                                                <input type="hidden" name="id" id="id" value="{{ event.id }}">
+                                                <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></i></button>
+                                              </form>
+                                            {% endif %}
+                                            
+                                          </div>
+                                        </div>
+                                      </div>
+                                      {% endfor %}
+                      
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  <!-- [ Main Content ] end -->
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+{% endblock javascripts %}

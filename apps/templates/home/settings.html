@@ -1,0 +1,115 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Settings {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+  <!-- [ Main Content ] start -->
+  <div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+                <div class="page-header">
+                    <div class="page-block">
+                        <div class="row align-items-center">
+                            <div class="col-md-12">
+                                <div class="page-header-title">
+                                    <h5 class="m-b-10">Settings</h5>
+                                </div>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="javascript:">Settings</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Settings</h5>
+                                    </div>
+                                    <div class="card-block">
+                                      <form action="userData" method="post" enctype="multipart/form-data">
+                                        <input type="hidden" name="id_user" id="id_user" value="{{ current_user.id }}">
+                                        <div class="card-body">
+                                          <div class="form-group">
+                                            <label for="name">Name / Ime</label>
+                                            <input type="text" class="form-control" id="name" name="name" placeholder="Name / Ime" value="{{ data.name }}">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="lastname">Last Name / Prezime</label>
+                                            <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Last Name / Prezime" value="{{ data.lastname }}">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="address">Address / Adresa</label>
+                                            <input type="text" class="form-control" id="address" name="address" placeholder="Address / Adresa" value="{{ data.address }}">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="city">City / Grad</label>
+                                            <input type="text" class="form-control" id="city" name="city" placeholder="City / Grad" value="{{ data.city }}">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="post_code">Post code / Poštanski broj</label>
+                                            <input type="number" class="form-control" id="post_code" name="post_code" placeholder="Post code / Poštanski broj" value="{{ data.post_code }}">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="country">Country / Država</label>
+                                            <input type="text" class="form-control" id="country" name="country" placeholder="Country / Država" value="{{ data.country }}">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="studio">Studio / Studio</label>
+                                            <input type="text" class="form-control" id="studio" name="studio" placeholder="Studio / Studio" value="{{ data.studio }}">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="phone">Phone / Telefon</label>
+                                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone / Telefon" value="{{ data.phone }}">
+                                          </div>
+                                          <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="gdpr" required>
+                                            <label class="form-check-label" for="exampleCheck1">Slažem se s člankom 13 GDPR-a /
+                                              I declare that I have read the information that is required in accordance with Article 13 of GDPR.</label>
+                                          </div>
+                                          
+                                        </div>
+                                        <!-- /.card-body -->
+                              
+                                        <div class="card-footer">
+                                          <button type="submit" class="btn btn-primary">Save / Update</button>
+                                        </div>
+                                      </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+{% endblock javascripts %}
