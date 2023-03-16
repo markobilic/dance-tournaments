@@ -173,3 +173,34 @@ class Event_level(db.Model):
     def __init__(self, id_event, id_level):
         self.id_event   = id_event
         self.id_level   = id_level
+
+class Event_category_ordering(db.Model):
+    __tablename__ = 'Event_category_ordering'
+    id              = db.Column(db.Integer, primary_key=True)
+    id_head        = db.Column(db.Integer)
+    id_age_group    = db.Column(db.Integer)
+    id_discipline   = db.Column(db.Integer)
+    id_category     = db.Column(db.Integer)
+    eo              = db.Column(db.Integer)
+    live            = db.Column(db.Integer)
+
+    def __init__(self, id_head, id_age_group, id_discipline, id_category, eo, live):
+        self.id_head       = id_head
+        self.id_age_group   = id_age_group
+        self.id_discipline  = id_discipline
+        self.id_category    = id_category
+        self.eo             = eo
+        self.live           = live
+
+class Event_category_ordering_head(db.Model):
+    __tablename__ = 'Event_category_ordering_head'
+    id          = db.Column(db.Integer, primary_key=True)
+    id_event    = db.Column(db.Integer)
+    date        = db.Column(db.Integer)
+    time        = db.Column(db.Integer)
+
+
+    def __init__(self, id_event, date, time):
+        self.id_event   = id_event
+        self.date       = date
+        self.time       = time

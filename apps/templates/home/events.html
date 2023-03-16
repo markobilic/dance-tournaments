@@ -174,26 +174,41 @@
                                       <div class="col-sm-4">
                                         <div class="card">
                                           <div class="card-header">
-                                            <div style="text-align:center"><img src="{{ event.image }}" style="max-width:300px;"></div>
+                                            <div style="text-align:center">
+                                              {% if current_user.role == 'organizer' %}
+                                              <form action="deleteEvent" method="post" style="position:absolute; right:0">
+                                                <input type="hidden" name="id" id="id" value="{{ event.id }}">
+                                                <button style="padding:5px;padding-left:15px;" type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></i></button>
+                                              </form>
+                                              {% endif %}
+                                              <img src="{{ event.image }}" style="max-width:300px;">
+                                            </div>
                                             <br><br>
                                             <div class="row">
-                                              <div class="col-sm-8">
+                                              <div class="col-sm-6">
                                                 <strong>{{ event.name }}</strong><br>Od / From: {{ event.event_from }}<br>Do / To: {{ event.event_to }}
                                               </div>
-                                              <div class="col-sm-4">
+                                              <div class="col-sm-6" style="text-align:right">
+                                                
+                                                {% if current_user.role == 'user' %}
                                                 <a class="btn btn-success btn-square" href="event.html?id={{ event.id }}">Prijavi se / Apply</a>
+                                                {% endif %}
+
+                                                {% if current_user.role == 'organizer' %}
+                                                    <button class="btn btn-square btn-light dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Info</button>
+                                                    <ul class="dropdown-menu"> 
+                                                      <li><a class="dropdown-item" href="event.html?id={{ event.id }}">Koregrafije / Choreography</a></li> 
+                                                      <li><a class="dropdown-item" href="event_ordering.html?id={{ event.id }}">Redoslijed / Ordering</a></li> 
+                                                    </ul> 
+                                                
+                                                <br>
+                                                
+                                                {% endif %}
                                               </div>
                                             </div>
                                           </div>
                                           <div class="card-body">
                                             <div class="col-sm-12"><p>{{ event.description }}</p></div>
-                                            {% if current_user.role == 'organizer' %}
-                                              <form action="deleteEvent" method="post">
-                                                <input type="hidden" name="id" id="id" value="{{ event.id }}">
-                                                <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></i></button>
-                                              </form>
-                                            {% endif %}
-                                            
                                           </div>
                                         </div>
                                       </div>

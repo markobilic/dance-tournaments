@@ -194,6 +194,7 @@
                                             <tr>
                                               <th>#</th>
                                               <th>Datum</th>
+                                              <th>Studio</th>
                                               <th>choreography</th>
                                               <th>age_group</th>
                                               <th>discipline</th>
@@ -210,6 +211,7 @@
                                             <tr>
                                               <td>{{ loop.index }}</td>
                                               <td>{{ a.entered_date }}</td>
+                                              <td>{{ a.studio }}</td>
                                               <td>{{ a.choreography }} / {{ a.choreograph }}</td>
                                               <td>{{ a.age_group_name }}</td>
                                               <td>{{ a.discipline_name }}</td>
@@ -404,20 +406,6 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-
-  <!-- jQuery -->
-  <script src="/static/assets/plugins/jquery/jquery.min.js"></script>
-  <!-- Bootstrap 4 -->
-  <script src="/static/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <!-- DataTables -->
-  <script src="/static/assets/plugins/datatables/jquery.dataTables.min.js"></script>
-  <script src="/static/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-  <script src="/static/assets/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-  <script src="/static/assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-  <!-- AdminLTE App -->
-  <script src="/static/assets/js/adminlte.min.js"></script>
-  <!-- AdminLTE for demo purposes -->
-  <script src="/static/assets/js/demo.js"></script>
 
   <script>
    $(document).ready(function () {

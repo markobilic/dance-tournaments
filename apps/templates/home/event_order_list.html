@@ -1,0 +1,127 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Event ordering {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://kit.fontawesome.com/ba212557d7.css" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/ba212557d7.js" crossorigin="anonymous"></script>
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/static/assets/css/adminlte.min.css">
+
+  <!-- DataTables -->
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10">Lista po redoslijedu</h5>
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Lista po redoslijedu</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <h3>{{ data.name }}</h3>
+                                                <h4>Date / Datum : {{ listHead.date }} </h4>
+                                                <h4>Start / Početak : {{ listHead.time }}</h4>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        <div class="card-block">
+                                        {% for ac in activeCategorys %}
+                                        <p>{{ loop.index }} - {{ ac.age_group_name }} {{ ac.discipline_name }} {{ ac.category_name }}</p>
+                                        <table id="orderList{{ loop.index }}" class="table table-bordered table-hover">
+                                          <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Dance Title</th>
+                                                <th>Age</th>
+                                                <th>Competitor(s)</th>
+                                                <th>Dance School</th>
+                                                <th>Entry number</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {% set ns = namespace(c = 0) %}
+                                            {% for a in applications %}
+                                                {% if a.age_group == ac.age_group and a.category == ac.category and a.discipline == ac.discipline %}
+                                                {% set ns.c = ns.c + 1 %}
+                                                    <tr>
+                                                    <td>{{  ns.c  }}</td>
+                                                    <td>{{ a.choreography }}</td>
+                                                    <td>{{ '%0.2f'| format(a.age_average|float) }}</td>
+                                                    <td>
+                                                        {% for d in a.dancers %}
+                                                            {{ d.name }} {{ d.lastname }}
+                                                            {% if not loop.last %}
+                                                                ,
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </td>
+                                                    <td>{{ a.studio }}</td>
+                                                    <td>{{ a.id }}</td>
+                                                    
+                                                    </tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                          </tbody>
+                                        </table>
+                                        {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <!-- [ Main Content ] end -->
+
+   
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+
+{% endblock javascripts %}

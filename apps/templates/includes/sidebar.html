@@ -21,20 +21,20 @@
                             class="pcoded-mtext">Dashboard</span></a>
                 </li>
                 <li data-username="Events" 
-                    class="nav-item {% if 'Events' in segment %} active {% endif %}">
+                    class="nav-item {% if 'events' in segment %} active {% endif %}">
                     <a href="/events.html" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-calendar"></i></span>
                             <span class="pcoded-mtext">Events</span></a>
                 </li>
                 <li data-username="Dancers" 
-                    class="nav-item {% if 'Events' in segment %} active {% endif %}">
+                    class="nav-item {% if 'dancers' in segment %} active {% endif %}">
                     <a href="/dancers.html" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-users"></i></span>
                             <span class="pcoded-mtext">Dancers</span></a>
                 </li>
                 {% if current_user.role == 'user' %}
                 <li data-username="Settings" 
-                    class="nav-item {% if 'Events' in segment %} active {% endif %}">
+                    class="nav-item {% if 'settings' in segment %} active {% endif %}">
                     <a href="/settings.html" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-settings"></i></span>
                             <span class="pcoded-mtext">Settings</span></a>

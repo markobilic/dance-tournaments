@@ -1,0 +1,203 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Event ordering {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://kit.fontawesome.com/ba212557d7.css" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/ba212557d7.js" crossorigin="anonymous"></script>
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/static/assets/css/adminlte.min.css">
+
+  <!-- DataTables -->
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10">Redoslijed</h5>
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Redoslijed</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                {% for oh in orderingHead %}
+                                                    <a class="btn btn-success btn-square" href="event_order_list.html?id={{ data.id }}&id_head={{ oh.id }}">List koreografija / Choreography list / {{ oh.date }} {{ oh.time }}</a>
+                                                {% endfor %}
+                                                <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#newList">
+                                                    Napravi listu
+                                                </button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        <div class="card-block">
+                                        <form action="editOrdering" method="post" enctype="multipart/form-data">
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <select class="form-control" name="id_head" id="id_head">
+                                                    <option></option>
+                                                {% for oh in orderingHead %}
+                                                    {% set s = '' %}
+                                                    {% set id_head = request.args.get('id_head') %}
+                                                    {% if id_head|int == oh.id|int %}
+                                                        {% set s = 'selected' %}
+                                                    {% endif %}
+                                                    <option {{ s }} value="{{ oh.id }}">{{ oh.date }} {{ oh.time }}</option>
+                                                {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <input type="hidden" name="id_event" value="{{ data.id }}">
+                                        <table id="ordering" class="table table-bordered table-hover">
+                                          <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>#</th>
+                                                <th>Age Group</th>
+                                                <th>Discipline</th>
+                                                <th>Category</th>
+                                                <th>Order</th>
+                                                <th>List</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {% for ac in activeCategorys %}
+                                                    {% set c = '' %}
+                                                    {% set id_head = request.args.get('id_head') %}
+                                                    {% if id_head|int > 0 and ac.ordering|int > 0 %}
+                                                        {% set c = 'checked' %}
+                                                    {% endif %}
+                                                <tr>
+                                                    <td><input {{ c }} type="checkbox" name="row_s" class="form-control" value="{{ loop.index }}"></td>
+                                                    <td>{{ loop.index }}</td>
+                                                    <td><input type="hidden" name="row_ag" value="{{ ac.age_group }}"> {{ ac.age_group_name }}</td>
+                                                    <td><input type="hidden" name="row_d" value="{{ ac.discipline }}"> {{ ac.discipline_name }}</td>
+                                                    <td><input type="hidden" name="row_c" value="{{ ac.category }}"> {{ ac.category_name }}</td>
+                                                    <td><input type="number" name="row_o" class="form-control" value="{{ ac.ordering }}"></td>
+                                                    <td>{{ ac.list }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                          </tbody>
+                                        </table>
+                                        <button type="submit" class="btn btn-primary btn-square">Spremi</button>
+                                        </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <!-- [ Main Content ] end -->
+
+
+    <div class="modal fade" id="newList" tabindex="-1" role="dialog" aria-labelledby="newList" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit dancer / Uredi plesača</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="newOrderingList" method="post">
+                <input type="hidden" name="id_event" value="{{ data.id }}">
+                <div class="card-body">
+                    <div class="form-group">
+                    <div class="form-group">
+                        <label for="name">Date / Datum</label>
+                        <input type="date" class="form-control" id="date" name="date">
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Time / Vrijeme</label>
+                        <input type="time" class="form-control" id="time" name="time">
+                    </div>
+                </div>
+                <!-- /.card-body -->
+        
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">Kreiraj / Create</button>
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close / Zatvori</button>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script>
+    $(document).ready(function () {
+      $('#ordering').DataTable({
+       "paging": true,
+         "searching": true,
+         "ordering": true,
+         "responsive": false,
+      });
+    });
+
+    $( "#id_head" ).change(function() {
+        id_head = $( this ).val();
+
+        if(id_head > 0)
+        {
+            window.location.href = "/event_ordering.html?id={{data.id}}"+"&id_head="+id_head;
+        }
+        else
+        {
+            window.location.href = "/event_ordering.html?id={{data.id}}";
+        }
+        
+    });
+   </script>
+
+{% endblock javascripts %}

@@ -32,17 +32,12 @@ AUDIO_FOLDER = '/static/assets/audio/'
 @blueprint.route('/index')
 @login_required
 def index():
-
     return render_template('home/index.html', segment='index')
-
-
-    
 
 @blueprint.route('/<template>')
 @login_required
 def route_template(template):
 
-    
     try:
         
         if not template.endswith('.html'):
@@ -52,10 +47,57 @@ def route_template(template):
         segment = get_segment(request)
 
         if template == 'chat.html':
-            print(template)
             name = 'test1'
             room = 'test2'
             return render_template("home/chat.html", name=name, room=room)
+
+        if template == 'event_ordering.html':
+            id = request.args.get('id', default = 0, type = int)
+            id_head = request.args.get('id_head', default = 0, type = int)
+            if id > 0:
+                event           = Events.query.filter_by(id=id).first()
+                message_bytes   = base64.b64decode(event.picture)
+                picture         = message_bytes.decode('ascii')
+                event.image     = IMAGE_FOLDER_EVENTS + picture
+                
+                age_group       = getEventAgeGroup(id)
+                category        = getEventCategory(id)
+                discipline      = getEventDiscipline(id)
+                level           = getEventLevel(id)
+                federation      = getEventFederation(id)
+                dancers         = Dancers.query.filter_by(id_user=current_user.id).all()
+                applications    = getEventApplications(id)
+
+                activeCategorys = getEventActiveCategorys(id, id_head)
+
+                orderingHead    = getEventOrderingHeads(id)
+
+                return render_template("home/" + template, segment=segment, data=event, age_group=age_group, category = category, discipline = discipline, dancers = dancers, level = level, federation = federation, applications=applications, activeCategorys=activeCategorys, orderingHead=orderingHead)
+            else:
+                return render_template('home/events.html', segment=segment)
+        
+        if template == 'event_order_list.html':
+            id = request.args.get('id', default = 0, type = int)
+            id_head = request.args.get('id_head', default = 0, type = int)
+            if id > 0 and id_head > 0:
+                event           = Events.query.filter_by(id=id).first()
+                message_bytes   = base64.b64decode(event.picture)
+                picture         = message_bytes.decode('ascii')
+                event.image     = IMAGE_FOLDER_EVENTS + picture
+                
+                age_group       = getEventAgeGroup(id)
+                category        = getEventCategory(id)
+                discipline      = getEventDiscipline(id)
+                level           = getEventLevel(id)
+                federation      = getEventFederation(id)
+                dancers         = Dancers.query.filter_by(id_user=current_user.id).all()
+                applications    = getEventApplications(id)
+                activeCategorys = getEventActiveCategorysByHead(id, id_head)
+                listHead        = activeListHead(id_head)
+
+                return render_template("home/" + template, segment=segment, data=event, age_group=age_group, category = category, discipline = discipline, dancers = dancers, level = level, federation = federation, applications=applications, activeCategorys=activeCategorys, listHead=listHead)
+            else:
+                return render_template('home/events.html', segment=segment)
 
         if template == 'settings.html':
             user_data = User_data.query.filter_by(id_user=current_user.id).first()
@@ -122,7 +164,6 @@ def userData():
             user_data.phone     = request.form.get('phone')
             db.session.commit()
         else:
-            print(request.form)
             user_data = User_data(**request.form)
             db.session.add(user_data)
             db.session.commit()
@@ -146,6 +187,17 @@ def addDancer():
     db.session.commit()
 
     return redirect('dancers.html')
+
+@blueprint.route('newOrderingList', methods=['POST'])
+def newOrderingList():
+    orderingList = Event_category_ordering_head(**request.form)
+
+    db.session.add(orderingList)
+    db.session.commit()
+
+    id_event = request.form.get('id_event')
+
+    return redirect('event_ordering.html?id='+id_event)
 
 @blueprint.route('editDancer', methods=['POST'])
 def editDancer():
@@ -190,7 +242,6 @@ def addEvent():
     description     = request.form['description']
     reference_date  = request.form['reference_date']
     active          = 1
-
 
     event = Events(name, event_from, event_to, picture, description, reference_date, active)
     file = request.files['picture']
@@ -291,7 +342,6 @@ def addChoreography():
     song_name       = request.form.get('song_name')
     entered_date    = now.strftime("%Y-%m-%d %H:%M:%S")
 
-
     application = Application(id_event, user_id, choreography, choreograph, age_group, discipline, category, federation, level, audio, song_author, song_name, entered_date)
 
     file                = request.files['audio']
@@ -345,6 +395,35 @@ def editChoreography():
     db.session.commit()
 
     return redirect('event.html?id='+id_event)
+
+@blueprint.route('editOrdering',methods=['POST'])
+def editOrdering():
+
+    id_head = request.form.get('id_head')
+    id_event = request.form.get('id_event')
+    
+    event_category_ordering = Event_category_ordering.query.filter(Event_category_ordering.id_head == id_head).all()
+    for eco in event_category_ordering:
+        db.session.delete(eco)
+        db.session.commit()
+
+    data_s = request.form.getlist('row_s')
+    data_ag = request.form.getlist('row_ag')
+    data_c = request.form.getlist('row_c')
+    data_d = request.form.getlist('row_d')
+    data_o = request.form.getlist('row_o')
+
+    print(data_s)
+
+    for i, o in enumerate(data_o):
+        for s in data_s:
+            if int(i+1) == int(s):
+                event_category_ordering = Event_category_ordering(id_head,data_ag[i], data_d[i], data_c[i], o, 0)
+                db.session.add(event_category_ordering)
+                db.session.commit()
+                
+
+    return redirect('event_ordering.html?id='+id_event)
 
 def get_segment(request):
     try:
