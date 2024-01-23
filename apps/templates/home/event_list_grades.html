@@ -1,0 +1,186 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Event ordering {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://kit.fontawesome.com/ba212557d7.css" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/ba212557d7.js" crossorigin="anonymous"></script>
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/static/assets/css/adminlte.min.css">
+
+  <!-- DataTables -->
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-print-css/css/bootstrap-print.min.css" media="print">
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10">Lista po redoslijedu</h5>
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Lista po redoslijedu</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body" id="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <button class="btn btn-square btn-primary" style="padding:0;padding-left:10px !important;" onclick="printDiv('printDiv')"><i class="feather icon-printer"></i></button>
+                                    <div class="card" id="printDiv">
+                                        <div class="card-header">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <h3>{{ data.name }}</h3>
+                                                <h4>Date / Datum : {{ listHead.date }} </h4>
+                                                <h4>Start / Početak : {{ listHead.time }}</h4>
+                                                {% set list1 = listHead.time.split(':') %}
+                                                {% set ns   = namespace() %}
+                                                {% set ns.c = 0 %}
+                                                {% set ns.av = 0 %}
+
+                                            </div>
+                                        </div>
+                                        </div>
+                                        <div class="card-block">
+                                        {% for ac in activeCategorys %}
+
+
+                                            {% for c in category %}
+                                                {% if c.id|int == ac.category|int %}
+                                                    {% set list2 = c.time_lenght.split(':') %}
+                                                    {% set ns.step_min = list2[0]|int %}
+                                                    {% set ns.step_sec = list2[1]|int %}
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            <p> </p>
+                                            <div id="divOrderList{{ loop.index }}">
+                                            <table id="orderList{{ loop.index }}" class="table table-bordered table-hover">
+                                            <thead class="thead-dark" stlye="background-color:#37474f">
+                                                <tr>
+                                                    <th style="vertical-align:middle;text-align: center;">
+                                                        <button class="btn btn-square btn-primary" style="padding:0;padding-left:10px !important;" onclick="printDiv('divOrderList{{ loop.index }}')"><i class="feather icon-printer"></i></button>
+                                                    <th colspan="5" style="text-align:left">{{ loop.index }} - {{ ac.age_group_name }} {{ ac.discipline_name }} {{ ac.category_name }} {{ ac.level_name }}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th style="width:30px; text-align:left">#</th>
+                                                    <th style="width:300px; text-align:left">Dance Title / Dance School</th>
+                                                    <th style="width:300px; text-align:left">Dancers</th>
+                                                    <th style="text-align:left" width="100px" >Position average</th>
+                                                    <th style="text-align:left" width="100px" >Grades</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% set ns.c = 0 %}
+                                                {% for a in applications|sort(attribute='position_twirling,', reverse = false)|sort(attribute='judging_grade_twirling,', reverse = true) %}
+
+                                                    {% if a.age_group == ac.age_group and a.category == ac.category and a.discipline == ac.discipline and a.level == ac.level %}
+
+                                                    {% set ns.c = ns.c + 1 %}
+
+                                                    {% if ns.c == 1 %}
+                                                        <tr style="font-weight:bold;font-size:20px;">
+                                                    {% elif ns.c == 2 %}
+                                                        <tr style="font-weight:bold;font-size:18px;">
+                                                    {% elif ns.c == 3 %}
+                                                        <tr style="font-weight:bold;font-size:16px;">
+                                                    {% else %}
+                                                        <tr>
+                                                        
+                                                    {% endif %}
+                                                    
+                                                        <td><b>{{  ns.c  }}</b></td>
+                                                        <td>{{ a.choreography }} - {{ a.studio }}</td>
+
+                                                        <td>
+                                                            {% set ns.dancers = 0 %}
+                                                            {% for d in a.dancers %}
+                                                                {% if ns.dancers == 0 %}
+                                                                {{ d.name }} {{ d.lastname }}
+                                                                {% else %}
+                                                                |  {{ d.name }} {{ d.lastname }}
+                                                                {% endif %}
+                                                              
+                                                             {% set ns.dancers = ns.dancers + 1 %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        {% if a.position == 100 %}
+                                                            <td>0</td>
+                                                        {% else %}
+                                                            <td>{{ a.position_twirling | round(2) }}</td>
+                                                        {% endif %}
+                                                        
+                                                        <td>{{ a.judging_grade_twirling | round(2) }}</td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tbody>
+                                            </table>
+                                            </div>
+                                        {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+    
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js" integrity="sha384-NaWTHo/8YCBYJ59830LTz/P4aQZK1sS0SneOgAvhsIl3zBu8r9RevNg5lHCHAuQ/" crossorigin="anonymous"></script>
+
+<script>
+
+    function printDiv(divId){
+
+        var printContents = document.getElementById(divId).innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+
+        window.print();
+
+        document.body.innerHTML = originalContents
+    }
+
+</script>
+
+{% endblock javascripts %}

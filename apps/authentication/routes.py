@@ -15,7 +15,7 @@ from apps.authentication import blueprint
 from apps.authentication.forms import LoginForm, CreateAccountForm
 from apps.authentication.models import Users
 
-from apps.authentication.util import verify_pass
+from apps.authentication.util import verify_pass,hash_pass
 
 @blueprint.route('/')
 def route_default():
@@ -32,6 +32,11 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
+        """
+        user = Users.query.filter_by(id=5).first()
+        user.password = hash_pass('lozinka11')
+        db.session.commit()
+        """
         # Locate user
         user = Users.query.filter_by(username=username).first()
 
@@ -78,6 +83,7 @@ def register():
 
         # else we can create the user
         user = Users(**request.form)
+        user.role = 'user'
         db.session.add(user)
         db.session.commit()
 
@@ -102,7 +108,11 @@ def logout():
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return render_template('home/page-403.html'), 403
+    if current_user.is_authenticated:
+        request 
+        return render_template(request.full_path)
+    else:
+        return render_template('home/page-403.html'), 403
 
 
 @blueprint.errorhandler(403)

@@ -36,56 +36,65 @@
         </button>
       </div>
       <div class="modal-body">
-        <form action="addChoreography" method="post" enctype="multipart/form-data">
+        <form action="addChoreography" method="post" enctype="multipart/form-data" id="addChoreographyForm">
           <input type="hidden" name="id_event" id="id_event" value="{{ data.id }}">
           <div class="card-body">
             <div class="form-group">
               <label for="name">Add coreography / Ime koreografije</label>
-              <input type="text" class="form-control" id="choreography" name="choreography" placeholder="Add coreography / Ime koreografije">
+              <input type="text" class="form-control" id="choreography" name="choreography" placeholder="Add coreography / Ime koreografije" required>
             </div>
             <div class="form-group">
               <label for="name">Add choreograph / Ime koreografa</label>
-              <input type="text" class="form-control" id="choreograph" name="choreograph" placeholder="Add choreograph / Ime koreografa">
+              <input type="text" class="form-control" id="choreograph" name="choreograph" placeholder="Add choreograph / Ime koreografa" required>
             </div>
+            
+            {% if federation|length > 0 %}
             <div class="form-group">
+              <label for="name">Federation / Federacija</label>
+              <select class="form-control" id="federation" name="federation" >
+                  <option></option>
+                  {% for f in federation %}
+                      <option value="{{ f.id }}">{{ f.name }}</option>
+                  {% endfor %}
+              </select>
+            {% else %}
+                  <input type="hidden" id="federation" name="federation" value="0">
+            {% endif %}
+          </div>
+          <div class="form-group">
                 <label for="name">Dance category / Plesna kategorija</label>
-                <select class="form-control" id="category" name="category">
+                <select class="form-control" id="category" name="category" required>
                     <option></option>
                     {% for c in category %}
                         <option value="{{ c.id }}">{{ c.name }}</option>
                     {% endfor %}
                 </select>
             </div>
+            {% if discipline|length > 0 %}
             <div class="form-group">
                 <label for="name">Dance discipline / Plesna disciplina</label>
-                <select class="form-control" id="discipline" name="discipline">
+                <select class="form-control" id="discipline" name="discipline" required>
                     <option></option>
                     {% for d in discipline %}
                         <option value="{{ d.id }}" data-ref="{{ d.use_ref_date }}">{{ d.discipline }}</option>
                     {% endfor %}
                 </select>
             </div>
+            {% else %}
+                  <input type="hidden" id="discipline" name="discipline" value="0">
+            {% endif %}
             <div class="form-group">
                 <label for="name">Age category / Dobna skupina</label>
-                <select class="form-control" id="age_group" name="age_group">
+                <select class="form-control" id="age_group" name="age_group" required>
                     <option></option>
                     {% for ag in age_group %}
                         <option value="{{ ag.id }}" data-ref="{{ ag.use_average }}">{{ ag.name }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group">
-              <label for="name">Federation / Federacija</label>
-              <select class="form-control" id="federation" name="federation">
-                  <option></option>
-                  {% for f in federation %}
-                      <option value="{{ f.id }}">{{ f.name }}</option>
-                  {% endfor %}
-              </select>
-          </div>
           <div class="form-group">
             <label for="name">Level / Razina</label>
-            <select class="form-control" id="level" name="level" >
+            <select class="form-control" id="level" name="level" required>
                 <option></option>
                 {% for l in level %}
                     <option value="{{ l.id }}">{{ l.name }}</option>
@@ -99,7 +108,7 @@
                     <div class="col-3">
                       <div class="form-check">     
                         <input class="form-check-input" name="dancers" value="{{ d.id }}" data-datum="{{ d.birth_date }}" type="checkbox" id="d{{ d.id }}">         
-                        <label class="form-check-label" for="d{{ d.id }}">{{ d.name }}</label>        
+                        <label class="form-check-label" for="d{{ d.id }}">{{ d.name }} {{ d.lastname }}</label>        
                       </div>
                     </div>
                   {% endfor %}
@@ -121,17 +130,11 @@
                 <label for="name">Song name / Naziv pjesme</label>
                 <input type="text" class="form-control" id="song_name" name="song_name" placeholder="Song name / Naziv pjesme">
             </div>
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input" id="gdpr" required>
-              <label class="form-check-label" for="exampleCheck1">Slažem se s člankom 13 GDPR-a /
-                I declare that I have read the information that is required in accordance with Article 13 of GDPR.</label>
-            </div>
           </div>
           <!-- /.card-body -->
 
           <div class="card-footer">
-           <span  class="btn btn-primary btn-square" onclick="checkDancers()">Provjera dancers</span>
-            <button type="submit" class="btn btn-primary btn-square">Submit</button>
+           <span  class="btn btn-primary btn-square" onclick="checkDancers()">Apply / Prijava</span>
           </div>
         </form>
       </div>
@@ -177,18 +180,24 @@
                                                 Od / From: <strong>{{ data.event_from }}</strong><br>
                                                 Do / To: <strong>{{ data.event_to }}</strong><br>
                                                 Opis / Description: <strong>{{ data.description }}</strong><br>
+                                                {% if current_user.role == 'user' %}
+                                                 <a href="/invoice.html?id_event={{ data.id }}"><button type="button" class="btn btn-primary btn-square">
+                                                  <i class="feather icon-file-text"></i>Invoice / Račun
+                                                </button>
+                                                 {% endif %}
+                                                </a>
                                             </div>
                                             <div class="col-sm-6" style="text-align:right;">
                                                 <img src="{{ data.image }}" style="max-width:300px;">
                                             </div>
                                         </div>
                                         {% if current_user.role == 'user' %}
-                                        <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#addChoreography">
+                                        <button type="button" class="btn btn-primary btn-square" id="add_choreography" data-toggle="modal" data-target="#addChoreography">
                                           Prijavi koreografiju / Add choreography
                                         </button>
                                         {% endif %}
                                         </div>
-                                        <div class="card-block">
+                                        <div class="card-block" style="overflow:scroll">
                                         <table id="applications" class="table table-bordered table-hover">
                                           <thead>
                                             <tr>
@@ -197,7 +206,7 @@
                                               <th>Studio</th>
                                               <th>choreography</th>
                                               <th>age_group</th>
-                                              <th>discipline</th>
+                                              <!--<th>discipline</th>-->
                                               <th>category</th>
                                               <th>federation</th>
                                               <th>level</th>
@@ -214,7 +223,7 @@
                                               <td>{{ a.studio }}</td>
                                               <td>{{ a.choreography }} / {{ a.choreograph }}</td>
                                               <td>{{ a.age_group_name }}</td>
-                                              <td>{{ a.discipline_name }}</td>
+                                              <!--<td>{{ a.discipline_name }}</td>-->
                                               <td>{{ a.category_name }}</td>
                                               <td>{{ a.federation_name }}</td>
                                               <td>{{ a.level_name }}</td>
@@ -229,10 +238,13 @@
                                                 </audio>
                                               </td>
                                               <td>
+                                              {% if current_user.role == 'user' %}
                                                 <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#editApplication_{{ a.id }}">
                                                   <i class="feather icon-edit"></i>
                                                 </button>
-                                                <form action="deleteChoreography" method="post" style="display:inline">
+                                               
+                                                 {% endif %}
+                                                  <form action="deleteChoreography" method="post" style="display:inline">
                                                   <input type="hidden" name="id" id="id" value="{{ a.id }}">
                                                   <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></button>
                                                 </form>
@@ -327,23 +339,25 @@
             <div class="form-group">
                 <label for="name">Dance category / Plesna kategorija</label>
                 <input type="hidden" id="category" name="category" value="{{ a.category }}" readonly>
-                <input type="text" class="form-control" id="category_show_edit_{{ a.id }}" name="category_show" value="{{ a.category_name }}" readonly>
+                <input type="text" class="form-control" id="category_show_edit_{{ a.id }}" data-id="{{ a.category }}" name="category_show" value="{{ a.category_name }}" readonly>
             </div>
+            <!--
             <div class="form-group">
                 <label for="name">Dance discipline / Plesna disciplina</label>
                 <input type="hidden" id="discipline" name="discipline" value="{{ a.discipline }}" readonly>
                 <input type="text" class="form-control" id="discipline_show_edit_{{ a.id }}" name="discipline_show" value="{{ a.discipline_name }}" readonly>
-            </div>
+            </div>-->
             <div class="form-group">
                 <label for="name">Age category / Dobna skupina</label>
                 <input type="hidden" id="age_group" name="age_group" value="{{ a.age_group }}" readonly>
-                <input type="text" class="form-control" id="age_group_show_edit_{{ a.id }}" name="age_group_show" value="{{ a.age_group_name }}" readonly>
-            </div>
+                <input type="text" class="form-control" id="age_group_show_edit_{{ a.id }}" data-id="{{ a.age_group }}"  name="age_group_show" value="{{ a.age_group_name }}" readonly>
+            </div> 
             <div class="form-group">
               <label for="name">Federation / Federacija</label>
               <input type="hidden" id="federation" name="federation" value="{{ a.federation }}">
               <input type="text" class="form-control" id="federation_show_edit_{{ a.id }}" name="federation_show" value="{{ a.federation_name }}" readonly>
           </div>
+
           <div class="form-group">
             <label for="name">Level / Razina</label>
             <input type="hidden" id="level" name="level" value="{{ a.level }}">
@@ -363,7 +377,7 @@
                     <div class="col-3">
                       <div class="form-check">
                         <input class="form-check-input" {% if dev.value == 1 %} checked {% endif %} name="dancers" value="{{ d.id }}" data-datum="{{ d.birth_date }}" type="checkbox" id="d_edit_{{ d.id }}">
-                        <label class="form-check-label" for="d{{ d.id }}">{{ d.name }}</label>
+                        <label class="form-check-label" for="d{{ d.id }}">{{ d.name }} {{ d.lastname }}</label>
                       </div>
                     </div>
                   {% endfor %}
@@ -381,16 +395,11 @@
                 <label for="name">Song name / Naziv pjesme</label>
                 <input type="text" class="form-control" id="song_name_edit_{{ a.id }}" name="song_name" value="{{a.song_name}}">
             </div>
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input" id="gdpr_edit_{{ a.id }}" required>
-              <label class="form-check-label" for="exampleCheck1">Slažem se s člankom 13 GDPR-a /
-                I declare that I have read the information that is required in accordance with Article 13 of GDPR.</label>
-            </div>
           </div>
           <!-- /.card-body -->
 
           <div class="card-footer">
-            <button type="submit" class="btn btn-primary btn-square">Update / Ažuriraj</button>
+            <button type="submit" class="btn btn-primary btn-square" onclick="checkDancersEdit({{ a.id }})">Update / Ažuriraj</button>
           </div>
         </form>
       </div>
@@ -410,6 +419,7 @@
   <script>
    $(document).ready(function () {
      $('#applications').DataTable({
+      "pageLength": 50,
       "paging": true,
         "searching": true,
         "ordering": true,
@@ -441,6 +451,19 @@
     var minYears;
     var maxYears;
     var dobnaSkupinaOdabrana = document.getElementById("age_group").value;
+
+    $(document).ready(function () {
+      var CurrentDate = new Date();
+      var SelectedDate = new Date("{{ data.event_to }}");
+      CurrentDate.setHours(0,0,0,0);
+      SelectedDate.setHours(0,0,0,0)
+      console.log(CurrentDate);
+      console.log(SelectedDate);
+      if(CurrentDate > SelectedDate){
+          $( "#add_choreography" ).remove();
+      }
+   });
+
     
       dobne_skupine.forEach(function(element)
       {
@@ -466,7 +489,7 @@
     
     var federacije = [ {% for f in federation %}{{ f|tojson|safe }}{% if loop.last  %}{% else %},{% endif %}{% endfor %} ];
     var kategorije = [ {% for c in category %}{{ c|tojson|safe }}{% if loop.last  %}{% else %},{% endif %}{% endfor %} ];
-    var discipline = [ {% for d in discipline %}{{ d|tojson|safe }}{% if loop.last  %}{% else %},{% endif %}{% endfor %} ];
+    //var discipline = [ {% for d in discipline %}{{ d|tojson|safe }}{% if loop.last  %}{% else %},{% endif %}{% endfor %} ];
     var minNum;
     var MaxNum;
     var categoryOdabrana = document.getElementById("category").value;
@@ -479,7 +502,7 @@
           maxNum = element.max_dancers;
         }
       })
-      
+      /*
       document.getElementById("federation").addEventListener("change", function()
       {
         federationOdabrana = this.value;	
@@ -522,11 +545,11 @@
         };		
         xhttp2.send(params2);
       });
-      
+      */
       document.getElementById("category").addEventListener("change", function()
       {
         categoryOdabrana = this.value;	
-    
+        /*
         var xhttp = new XMLHttpRequest();
         var url = '_get_discipline.php';
         var params = 'id_kategorije='+categoryOdabrana;
@@ -565,7 +588,7 @@
           }
         };		
         xhttp.send(params);
-        
+        */
         kategorije.forEach(function(element)
         {
           if(element.id == categoryOdabrana)
@@ -580,7 +603,7 @@
         });
         document.getElementById("number_of_dancers").value = "";
       });
-      
+      /*
       document.getElementById("discipline").addEventListener("change", function()
       {
         disciplineOdabrana = this.value;	
@@ -625,7 +648,7 @@
         };		
         xhttp2.send(params2);
       });
-      
+      */
 
 
       $("#addChoreography input[name='dancers']").click(function()
@@ -644,14 +667,14 @@
             if(this.checked == true)
             {
               var datum_rodenja = $(this).attr('data-datum');
-              if(discipline == 1)
-              {
+              //if(discipline == 1)
+              //{
                 var godine = checkPlesacGodine(datum_rodenja,referentni_datum[0].referentni_datum);
-              }
-              else
-              {
-                var godine = checkPlesacGodine(datum_rodenja,pocetni_datum[0].do);
-              }
+              //}
+              //else
+              //{
+              //  var godine = checkPlesacGodine(datum_rodenja,pocetni_datum[0].do);
+              //}
               
               if(godine > maxYears || godine < minYears)
               {
@@ -677,6 +700,19 @@
       }
       return checkboxesChecked.length > 0 ? checkboxesChecked : null;
     }
+
+    function getCheckedBoxesEdit(chkboxName, id_application)
+    {
+      var checkboxes = $("#editApplication_"+id_application+" input[name='"+chkboxName+"']:checked");
+      var checkboxesChecked = [];
+      for (var i=0; i<checkboxes.length; i++)
+      {
+        checkboxesChecked.push(checkboxes[i].getAttribute('data-datum'));
+      }
+      return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+    }
+
+    
     
     function checkPlesacGodine(plesac,refDatum)
     {
@@ -689,10 +725,29 @@
       var ukupno = 0;
       var prosjek = 0;
       var godine = new Array();
+      var najveca_godina = 0;
       checkedBoxovi.forEach(function(element){
         var razlika = dateDiff(element, refDatum);
-        godine.push(razlika);
+        
+
+        if(dobnaSkupinaOdabrana == 11 || dobnaSkupinaOdabrana == 17)
+        {
+          if(razlika > najveca_godina)
+          {
+            najveca_godina = razlika;
+          }
+        }
+        else
+        {
+          godine.push(razlika);
+        }
       });
+
+      if(dobnaSkupinaOdabrana == 11 || dobnaSkupinaOdabrana == 17)
+      {
+        var godine = new Array();
+        godine.push(najveca_godina);
+      }
       ukupno = godine.reduce((a, b) => a + b, 0);
       prosjek = ukupno / godine.length;
       return prosjek;
@@ -731,41 +786,156 @@
   <script>
     function checkDancers()
     {
-      var category = document.getElementById("category").value;
-      var discipline = $('#discipline option:selected').attr('data-ref');
-      var odabrano = document.getElementById("number_of_dancers").value;
+      event.preventDefault();
+      var error = 0;
+      var discipline = $('#addChoreographyForm #discipline option:selected').attr('data-ref');
+      var odabrano = $('#addChoreographyForm #number_of_dancers').val();
+
+      var category = $('#addChoreographyForm #category').find(":selected").val();
+      var discipline_sel = $('#addChoreographyForm #discipline').find(":selected").val();
+      var level = $('#addChoreographyForm #level').find(":selected").val();
+      var age_group = $('#addChoreographyForm #age_group').find(":selected").val();
+
+      if(!(age_group != ''))
+      {
+        error = 1;
+      }
+
+      if(!(level != ''))
+      {
+        error = 1;
+      }
+
+      if(!(level != ''))
+      {
+        error = 1;
+      }
+
+      if(!(category != ''))
+      {
+        error = 1;
+      }
+
+      /*if(!(discipline_sel != ''))
+      {
+        error = 1;
+      }*/
+      
+      if(!(odabrano != null))
+      {
+        error = 1;
+      }
+
       kategorije.forEach(function(element){
         if(element.id == category)
-        {
+        { 
+          console.log(element);
+          console.log(odabrano);
           if(odabrano >= parseInt(element.min_dancers) && odabrano <= parseInt(element.max_dancers))
           {
             var checkedBoxes = getCheckedBoxes("dancers");
             var prosjekGodina;
-            if(discipline == 1)
-            {
+            //if(discipline == 1)
+            //{
               prosjekGodina = getProsjekGodina(checkedBoxes,referentni_datum[0].referentni_datum);
-            }
-            else
-            {
-              prosjekGodina = getProsjekGodina(checkedBoxes,pocetni_datum[0].do);
-            }					
+            //}
+            //else
+            //{
+            //  prosjekGodina = getProsjekGodina(checkedBoxes,pocetni_datum[0].do);
+            //}					
+            console.log(prosjekGodina);
             if(prosjekGodina >= minYears && prosjekGodina <= maxYears)
             {
-              alert("Prosjek godina zadovoljen / The average of years is met");
             }
             else
             {						
               alert("Prosjek godina nije zadovoljen / The average of years is not met");
+              error = 1;
             }								
           }
           else
           {
             alert("Nije odabran minimalni broj plesača / Minimum number of dancers is not selected");
-            return false;
+            //return false;
+            error = 1;
           }
         }
       })
+      if(error == 0)
+      {
+        $("#addChoreographyForm").submit()
+      }
     }
+
+    function checkDancersEdit(id_application)
+    {
+      event.preventDefault();
+      var error = 0;
+      var discipline = 1;
+      var odabrano = $('#editApplication_'+id_application+' [name="dancers"]:checked').length;
+
+      var category = $('#editApplication_'+id_application+' #category_show_edit_'+id_application).attr('data-id');
+      var age_group = $('#editApplication_'+id_application+' #age_group_show_edit_'+id_application).attr('data-id');
+
+      dobne_skupine.forEach(function(element)
+      {
+        if(element.id == age_group)
+        {
+          minYears = element.min_years;
+          maxYears = element.max_years;
+        }
+      })
+
+      kategorije.forEach(function(element)
+      {
+        if(element.id == category)
+        {
+          minNum = element.min_dancers;
+          maxNum = element.max_dancers;
+        }
+      })
+
+      
+
+      kategorije.forEach(function(element){
+        if(element.id == category)
+        {
+          if(odabrano >= parseInt(element.min_dancers) && odabrano <= parseInt(element.max_dancers))
+          {
+            var checkedBoxes = getCheckedBoxesEdit("dancers", id_application);
+
+            var prosjekGodina;
+            //if(discipline == 1)
+            //{
+              prosjekGodina = getProsjekGodina(checkedBoxes,referentni_datum[0].referentni_datum);
+            //}
+            //else
+            //{
+              //prosjekGodina = getProsjekGodina(checkedBoxes,pocetni_datum[0].do);
+            //}					
+            if(prosjekGodina >= minYears && prosjekGodina <= maxYears)
+            {
+            }
+            else
+            {						
+              alert("Prosjek godina nije zadovoljen / The average of years is not met");
+              error = 1;
+            }								
+          }
+          else
+          {
+            alert("Nije odabran minimalni broj plesača / Minimum number of dancers is not selected");
+            //return false;
+            error = 1;
+          }
+        }
+      })
+      if(error == 0)
+      {
+        $('#editApplication_'+id_application+' form').submit()
+      }
+    }
+
   </script>
 
 {% endblock javascripts %}

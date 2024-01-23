@@ -15,32 +15,61 @@
                 <li class="nav-item pcoded-menu-caption">
                     <label>Navigation</label>
                 </li>
-                <li data-username="dashboard Default Ecommerce CRM Analytics Crypto Project" 
-                    class="nav-item {% if 'index' in segment %} active {% endif %}">
-                    <a href="/" class="nav-link "><span class="pcoded-micon"><i class="feather icon-home"></i></span><span
-                            class="pcoded-mtext">Dashboard</span></a>
+                {% if current_user.role == 'judge' %}
+
+                <li data-username="Judging" 
+                    class="nav-item {% if 'udging' in segment %} active {% endif %}">
+                    <a href="/judging.html" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-calendar"></i></span>
+                            <span class="pcoded-mtext">Judging</span></a>
                 </li>
+
+                {% else %}
+                
                 <li data-username="Events" 
                     class="nav-item {% if 'events' in segment %} active {% endif %}">
                     <a href="/events.html" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-calendar"></i></span>
                             <span class="pcoded-mtext">Events</span></a>
                 </li>
+                {% if current_user.role == 'user' %}
                 <li data-username="Dancers" 
                     class="nav-item {% if 'dancers' in segment %} active {% endif %}">
                     <a href="/dancers.html" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-users"></i></span>
                             <span class="pcoded-mtext">Dancers</span></a>
                 </li>
+                {% endif %}
                 {% if current_user.role == 'user' %}
                 <li data-username="Settings" 
                     class="nav-item {% if 'settings' in segment %} active {% endif %}">
                     <a href="/settings.html" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-settings"></i></span>
-                            <span class="pcoded-mtext">Settings</span></a>
+                            <span class="pcoded-mtext">O studiju</span></a>
+                </li>
+                {% endif %}
+
+                {% if current_user.role == 'organizer' %}
+                <li data-username="Configuration" 
+                    class="nav-item {% if 'configuration' in segment %} active {% endif %}">
+                    <a href="/configuration.html" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-settings"></i></span>
+                            <span class="pcoded-mtext">Configuration</span></a>
+                </li>
+                {% endif %}
+
+                {% if current_user.role == 'organizer' %}
+                <li data-username="Judges" 
+                    class="nav-item {% if 'judges' in segment %} active {% endif %}">
+                    <a href="/judges.html" class="nav-link">
+                        <span class="pcoded-micon"><i class="feather icon-award"></i></span>
+                            <span class="pcoded-mtext">Judges</span></a>
                 </li>
                 {% endif %}
                 
+                
+                {% endif %}
+
                 <li data-username="Disabled Menu" class="nav-item">
                     <a href="{{ url_for('authentication_blueprint.logout') }}" class="nav-link">
                         <span class="pcoded-micon"><i class="feather icon-power"></i></span><span class="pcoded-mtext">Logout</span>
@@ -50,13 +79,11 @@
                     <label>More Resources</label>
                 </li>                    
                 <li data-username="Support Page" class="nav-item ">
-                    <a target="_blank" href="https://appseed.us/support" class="nav-link">
-                        <span class="pcoded-micon">
-                            <i class="feather icon-headphones"></i>
-                        </span>
-                        <span class="pcoded-mtext">Support</span>
-                    </a>
-                </li>                
+
+                    <a href="mailto:marko@blue-bear.hr"><span class="pcoded-micon">
+                        <i class="feather icon-headphones"></i>
+                    </span>Support</a>  
+                </li>
             </ul>
         </div>
     </div>

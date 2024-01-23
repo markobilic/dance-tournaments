@@ -1,0 +1,509 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Configuration {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+{% set tab = request.args.get('tab') %}
+
+  <!-- [ Main Content ] start -->
+  <div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+                <div class="page-header">
+                    <div class="page-block">
+                        <div class="row align-items-center">
+                            <div class="col-md-12">
+                                <div class="page-header-title">
+                                    <h5 class="m-b-10">Configuration</h5>
+                                </div>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="javascript:">Configuration</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Configuration</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <div class="col-sm-12">
+                                            <div class="row">
+                                                <div class="col-md-3 col-sm-12">
+                                                    <ul class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                                        <li><a class="nav-link text-left {% if tab == 'age_group' %} active {% endif %} {% if tab is none %} active {% endif %}" id="age_group-tab" data-toggle="pill" href="#age_group" role="tab" aria-controls="age_group-home" aria-selected="true">Age group</a></li>
+                                                        <li><a class="nav-link text-left {% if tab == 'category' %} active {% endif %}" id="category-tab" data-toggle="pill" href="#category" role="tab" aria-controls="category" aria-selected="false">Category</a></li>
+                                                        <li><a class="nav-link text-left {% if tab == 'discipline' %} active {% endif %}" id="disciplines-tab" data-toggle="pill" href="#disciplines" role="tab" aria-controls="disciplines" aria-selected="false">Discipline</a></li>
+                                                        <li><a class="nav-link text-left {% if tab == 'level' %} active {% endif %}" id="level-tab" data-toggle="pill" href="#level" role="tab" aria-controls="level" aria-selected="false">Level</a></li>
+                                                        <li><a class="nav-link text-left {% if tab == 'federation' %} active {% endif %}" id="federation-tab" data-toggle="pill" href="#federation" role="tab" aria-controls="federation" aria-selected="false">Federation</a></li>
+                                                        <li><a class="nav-link text-left {% if tab == 'grades' %} active {% endif %}" id="grades-tab" data-toggle="pill" href="#grades" role="tab" aria-controls="grades" aria-selected="false">Grades</a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="col-md-9 col-sm-12">
+                                                    <div class="tab-content" id="v-pills-tabContent">
+                                                        <div class="tab-pane {% if tab == 'age_group' %} active {% endif %} {% if tab is none %} active {% endif %}" id="age_group" role="tabpanel" aria-labelledby="age_group-tab">
+                                                            <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#newAgeGroup">
+                                                                Novi / New 
+                                                            </button>
+                                                            <table class="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>#</th>
+                                                                        <th>Name</th>
+                                                                        <th>Years</th>
+                                                                        <th>Average</th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for ag in age_group %}
+                                                                    <tr>
+                                                                        <th>{{ loop.index }}</th>
+                                                                        <td>{{ ag.name }}</td>
+                                                                        <td>{{ ag.min_years }} - {{ ag.max_years }}</td>
+                                                                        <td>{% if ag.use_average == 1 %} Yes {% else %} No {% endif %}</td>
+                                                                        <td>
+                                                                          <form action="deleteAgeGroup" method="post">
+                                                                            <input type="hidden" name="id" id="id" value="{{ ag.id }}">
+                                                                            <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></button>
+                                                                          </form>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="tab-pane {% if tab == 'category' %} active {% endif %}" id="category" role="tabpanel" aria-labelledby="category-tab">
+                                                            <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#newCategory">
+                                                                Novi / New 
+                                                            </button>
+                                                            <table class="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>#</th>
+                                                                        <th>Name</th>
+                                                                        <th>Dancers</th>
+                                                                        <th>Lenght</th>
+                                                                        <th>Price</th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for c in category %}
+                                                                    <tr>
+                                                                        <th>{{ loop.index }}</th>
+                                                                        <td>{{ c.name }}</td>
+                                                                        <td>{{ c.min_dancers }} - {{ c.max_dancers }}</td>
+                                                                        <td>{{ c.time_lenght }}</td>
+                                                                        <td>{{ c.price }}</td>
+                                                                        <td>
+                                                                          <form action="deleteCategory" method="post">
+                                                                            <input type="hidden" name="id" id="id" value="{{ c.id }}">
+                                                                            <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></button>
+                                                                          </form>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="tab-pane {% if tab == 'discipline' %} active {% endif %}" id="disciplines" role="tabpanel" aria-labelledby="disciplines-tab">
+                                                            <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#newDiscipline">
+                                                                Novi / New 
+                                                            </button>
+                                                            <table class="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>#</th>
+                                                                        <th>Name</th>
+                                                                        <th>Ref date</th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for d in discipline %}
+                                                                    <tr>
+                                                                        <th>{{ loop.index }}</th>
+                                                                        <td>{{ d.discipline }}</td>
+                                                                        <td>{% if d.use_ref_date == 1 %} Yes {% else %} No {% endif %}</td>
+                                                                        <td>
+                                                                          <form action="deleteDiscipline" method="post">
+                                                                            <input type="hidden" name="id" id="id" value="{{ d.id }}">
+                                                                            <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></button>
+                                                                          </form>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="tab-pane {% if tab == 'level' %} active {% endif %}" id="level" role="tabpanel" aria-labelledby="level-tab">
+                                                            <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#newLevel">
+                                                                Novi / New 
+                                                            </button>
+                                                            <table class="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>#</th>
+                                                                        <th>Name</th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for l in level %}
+                                                                    <tr>
+                                                                        <th>{{ loop.index }}</th>
+                                                                        <td>{{ l.name }}</td>
+                                                                        <td>
+                                                                          <form action="deleteLevel" method="post">
+                                                                            <input type="hidden" name="id" id="id" value="{{ l.id }}">
+                                                                            <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></button>
+                                                                          </form>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="tab-pane {% if tab == 'federation' %} active {% endif %}" id="federation" role="tabpanel" aria-labelledby="federation-tab">
+                                                            <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#newFederation">
+                                                                Novi / New 
+                                                            </button>
+                                                            <table class="table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>#</th>
+                                                                        <th>Name</th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for f in federation %}
+                                                                    <tr>
+                                                                        <th>{{ loop.index }}</th>
+                                                                        <td>{{ f.name }}</td>
+                                                                        <td>
+                                                                          <form action="deleteFederation" method="post">
+                                                                            <input type="hidden" name="id" id="id" value="{{ f.id }}">
+                                                                            <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></button>
+                                                                          </form>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="tab-pane {% if tab == 'grades' %} active {% endif %}" id="grades" role="tabpanel" aria-labelledby="grades-tab">
+                                                          <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#newGrades">
+                                                              Novi / New 
+                                                          </button>
+                                                          <table class="table">
+                                                              <thead>
+                                                                  <tr>
+                                                                      <th>#</th>
+                                                                      <th>Name</th>
+                                                                      <th>Max number</th>
+                                                                      <th></th>
+                                                                  </tr>
+                                                              </thead>
+                                                              <tbody>
+                                                                  {% for g in grades %}
+                                                                  <tr>
+                                                                      <th>{{ loop.index }}</th>
+                                                                      <td>{{ g.name }}</td>
+                                                                      <td>{{ g.max_number }}</td>
+                                                                      <td>
+                                                                        <form action="deleteFederation" method="post">
+                                                                          <input type="hidden" name="id" id="id" value="{{ g.id }}">
+                                                                          <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-trash-2"></i></button>
+                                                                        </form>
+                                                                      </td>
+                                                                  </tr>
+                                                                  {% endfor %}
+                                                              </tbody>
+                                                          </table>
+                                                      </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Age group modal -->
+<div class="modal fade" id="newAgeGroup" tabindex="-1" role="dialog" aria-labelledby="newAgeGroup" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">New age group / Nova dobna skupina</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="addAgeGroup" method="post" enctype="multipart/form-data">
+            <div class="card-body">
+              <div class="form-group">
+                <label for="name">Name / Ime</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Name / Ime">
+              </div>
+              <div class="form-group">
+                <label for="min_years">Min years / Min godina</label>
+                <input type="number" class="form-control" id="min_years" name="min_years">
+              </div>
+              <div class="form-group">
+                <label for="max_years">Max years / Max godina</label>
+                <input type="number" class="form-control" id="max_years" name="max_years">
+              </div>
+              <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="use_average" name="use_average">
+                <label class="form-check-label" for="use_average">Use average / Koristi prosijek</label>
+              </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary">Create / Kreiraj</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close / Zatvori</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Category modal -->
+<div class="modal fade" id="newCategory" tabindex="-1" role="dialog" aria-labelledby="newCategory" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">New category / Nova kategorija</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="addCategory" method="post" enctype="multipart/form-data">
+            <div class="card-body">
+              <div class="form-group">
+                <label for="name">Name / Ime</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Name / Ime">
+              </div>
+              <div class="form-group">
+                <label for="min_dancers">Min dancers / Min plesača</label>
+                <input type="number" class="form-control" id="min_dancers" name="min_dancers">
+              </div>
+              <div class="form-group">
+                <label for="max_dancers">Max dancers / Max plesača</label>
+                <input type="number" class="form-control" id="max_dancers" name="max_dancers">
+              </div>
+              <div class="form-group">
+                <label for="time_lenght">Lenght</label>
+                <div class="row">
+                  <div class="col">
+                    <select class="form-control" id="time_lenght_hour" name="time_lenght_hour">
+                      {% for i in range(59) %}
+                        {% if i < 10 %} <option value="0{{ i }}">0{{ i }}</option> {% else %} <option value="{{ i }}">{{ i }}</option> {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col">
+                    <select class="form-control" id="time_lenght_min" name="time_lenght_min">
+                      {% for i in range(59) %}
+                        {% if i < 10 %} <option value="0{{ i }}">0{{ i }}</option> {% else %} <option value="{{ i }}">{{ i }}</option> {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+
+                
+                
+              </div>
+              <div class="form-group">
+                <label for="price">Price / Cijena</label>
+                <input type="number" class="form-control" id="price" name="price">
+              </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary">Create / Kreiraj</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close / Zatvori</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Discipline modal -->
+<div class="modal fade" id="newDiscipline" tabindex="-1" role="dialog" aria-labelledby="newDiscipline" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">New discipline / Nova disciplina</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="addDiscipline" method="post" enctype="multipart/form-data">
+            <div class="card-body">
+              <div class="form-group">
+                <label for="discipline">Name / Ime</label>
+                <input type="text" class="form-control" id="discipline" name="discipline" placeholder="Name / Ime">
+              </div>
+              <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="use_ref_date" name="use_ref_date">
+                <label class="form-check-label" for="use_ref_date">Use ref date / Koristi ref datum</label>
+              </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary">Create / Kreiraj</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close / Zatvori</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Level modal -->
+<div class="modal fade" id="newLevel" tabindex="-1" role="dialog" aria-labelledby="newLevel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">New level / Nova razina</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="addLevel" method="post" enctype="multipart/form-data">
+            <div class="card-body">
+              <div class="form-group">
+                <label for="name">Name / Ime</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Name / Ime">
+              </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary">Create / Kreiraj</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close / Zatvori</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Federation modal -->
+<div class="modal fade" id="newFederation" tabindex="-1" role="dialog" aria-labelledby="newFederation" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">New federation / Nova federacija</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="addFederation" method="post" enctype="multipart/form-data">
+            <div class="card-body">
+              <div class="form-group">
+                <label for="name">Name / Ime</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Name / Ime">
+              </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary">Create / Kreiraj</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close / Zatvori</button>
+        </div>
+      </div>
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+
+<!-- Grades modal -->
+<div class="modal fade" id="newGrades" tabindex="-1" role="dialog" aria-labelledby="newGrades" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New grade / Nova ocjena</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="addGrade" method="post" enctype="multipart/form-data">
+          <div class="card-body">
+            <div class="form-group">
+              <label for="name">Name / Ime</label>
+              <input type="text" class="form-control" id="name" name="name" placeholder="Name / Ime">
+            </div>
+            <div class="form-group">
+              <label for="max_number">Max number / Max broj</label>
+              <input type="number" class="form-control" id="max_number" name="max_number" placeholder="Max number / Max broj">
+            </div>
+          </div>
+          <!-- /.card-body -->
+          <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Create / Kreiraj</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close / Zatvori</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+{% endblock javascripts %}

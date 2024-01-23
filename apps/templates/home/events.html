@@ -89,36 +89,64 @@
                   {% endfor %}
                 </div>
               </div>
+              {% if level|length > 1 %}
               <div class="form-group">
                 <label for="description">Razine</label>
                 <div class="row">
-                  {% for l in level %}
+                  
+                    {% for l in level %}
+                      <div class="col-3">
+                        <div class="form-check">     
+                          <input class="form-check-input" name="level" value="{{ l.id }}" type="checkbox" id="l{{ l.id }}">         
+                          <label class="form-check-label" for="l{{ l.id }}">{{ l.name }}</label>        
+                        </div>
+                      </div>
+                    {% endfor %}
+                  
+                </div>
+              </div>
+              {% endif %}
+              {% if federation|length > 1 %}
+              <div class="form-group">
+                <label for="description">Federacije</label>
+                <div class="row">
+                  
+                    {% for f in federation %}
+                      <div class="col-3">
+                        <div class="form-check">     
+                          <input class="form-check-input" name="federation" value="{{ f.id }}" type="checkbox" id="f{{ f.id }}">         
+                          <label class="form-check-label" for="f{{ f.id }}">{{ f.name }}</label>        
+                        </div>
+                      </div>
+                    {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+              <div class="form-group">
+                <label for="description">Sudci</label>
+                <div class="row">
+                  {% for j in judges %}
                     <div class="col-3">
                       <div class="form-check">     
-                        <input class="form-check-input" name="level" value="{{ l.id }}" type="checkbox" id="l{{ l.id }}">         
-                        <label class="form-check-label" for="l{{ l.id }}">{{ l.name }}</label>        
+                        <input class="form-check-input" name="judges" value="{{ j.id }}" type="checkbox" id="j{{ j.id }}">         
+                        <label class="form-check-label" for="j{{ j.id }}">{{ j.name }} {{ j.lastname }}</label>
                       </div>
                     </div>
                   {% endfor %}
                 </div>
               </div>
               <div class="form-group">
-                <label for="description">Federacije</label>
+                <label for="description">Ocjene</label>
                 <div class="row">
-                  {% for f in federation %}
+                  {% for g in grades %}
                     <div class="col-3">
                       <div class="form-check">     
-                        <input class="form-check-input" name="federation" value="{{ f.id }}" type="checkbox" id="f{{ f.id }}">         
-                        <label class="form-check-label" for="l{{ f.id }}">{{ f.name }}</label>        
+                        <input class="form-check-input" name="grades" value="{{ g.id }}" type="checkbox" id="g{{ g.id }}">         
+                        <label class="form-check-label" for="g{{ g.id }}">{{ g.name }}</label>        
                       </div>
                     </div>
                   {% endfor %}
                 </div>
-              </div>
-              <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="gdpr" required>
-                <label class="form-check-label" for="exampleCheck1">Slažem se s člankom 13 GDPR-a /
-                  I declare that I have read the information that is required in accordance with Article 13 of GDPR.</label>
               </div>
             </div>
             <!-- /.card-body -->
@@ -198,7 +226,13 @@
                                                     <button class="btn btn-square btn-light dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Info</button>
                                                     <ul class="dropdown-menu"> 
                                                       <li><a class="dropdown-item" href="event.html?id={{ event.id }}">Koregrafije / Choreography</a></li> 
+                                                      <li><a class="dropdown-item" href="event_dancers.html?id={{ event.id }}">Plesaci / Dancers</a></li> 
                                                       <li><a class="dropdown-item" href="event_ordering.html?id={{ event.id }}">Redoslijed / Ordering</a></li> 
+                                                      {% for list in event.list %}
+                                                      <li><a class="dropdown-item" href="event_list_live.html?id_head={{ list.id }}&id={{ event.id }}">{{ list.id }}. {{ list.date }} {{ list.time }} </a></li> 
+                                                      <li><a class="dropdown-item" href="event_list_results.html?id_head={{ list.id }}&id={{ event.id }}">{{ list.id }}. {{ list.date }} {{ list.time }} - Rezultati</a></li> 
+                                                      <li><a class="dropdown-item" href="event_list_grades.html?id_head={{ list.id }}&id={{ event.id }}">{{ list.id }}. {{ list.date }} {{ list.time }} - Ocjene </a></li> 
+                                                      {% endfor %}
                                                     </ul> 
                                                 
                                                 <br>

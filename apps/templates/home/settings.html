@@ -42,9 +42,14 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Settings</h5>
+                                        <h5>O studiju</h5>
                                     </div>
+                                    
+
                                     <div class="card-block">
+                                        {% if data is none %}
+                                          <h3>Molimo da unesete podatke!</h3>
+                                        {% endif %}
                                       <form action="userData" method="post" enctype="multipart/form-data">
                                         <input type="hidden" name="id_user" id="id_user" value="{{ current_user.id }}">
                                         <div class="card-body">
@@ -80,12 +85,7 @@
                                             <label for="phone">Phone / Telefon</label>
                                             <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone / Telefon" value="{{ data.phone }}">
                                           </div>
-                                          <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="gdpr" required>
-                                            <label class="form-check-label" for="exampleCheck1">Slažem se s člankom 13 GDPR-a /
-                                              I declare that I have read the information that is required in accordance with Article 13 of GDPR.</label>
-                                          </div>
-                                          
+
                                         </div>
                                         <!-- /.card-body -->
                               

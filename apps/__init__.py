@@ -31,6 +31,8 @@ def configure_database(app):
     @app.before_first_request
     def initialize_database():
         try:
+            app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://dancetournaments_flask_user:g$xij.nmimT4@dance-tournaments.net:3306/dancetournaments_flask_base"
+            SQLALCHEMY_DATABASE_URI = "mysql://dancetournaments_flask_user:g$xij.nmimT4@dance-tournaments.net:3306/dancetournaments_flask_base"
             db.create_all()
         except Exception as e:
 

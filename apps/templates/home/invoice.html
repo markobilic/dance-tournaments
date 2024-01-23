@@ -1,0 +1,372 @@
+
+{% extends "layouts/base.html" %}
+
+{% block title %} Dancers {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+
+<link href="https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.13.3/af-2.5.2/b-2.3.5/b-colvis-2.3.5/b-html5-2.3.5/b-print-2.3.5/cr-1.6.1/date-1.3.1/fc-4.2.1/fh-3.3.1/kt-2.8.1/r-2.4.0/rg-1.3.0/rr-1.3.2/sc-2.1.0/sb-1.4.0/sp-2.1.1/sl-1.6.1/sr-1.2.1/datatables.min.css" rel="stylesheet"/>
+
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+<style>
+    .invoice-box {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      font-size: 16px;
+      line-height: 24px;
+      font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+      color: #555;
+    }
+    
+    .invoice-box table {
+      width: 100%;
+      line-height: inherit;
+      text-align: left;
+    }
+    
+    .invoice-box table td {
+      padding: 5px;
+      vertical-align: top;
+    }
+    
+  
+    
+    .invoice-box table tr.top table td {
+      padding-bottom: 20px;
+    }
+    
+    .invoice-box table tr.top table td.title {
+      font-size: 45px;
+      line-height: 45px;
+      color: #333;
+    }
+    
+    .invoice-box table tr.information table td {
+      padding-bottom: 40px;
+    }
+    
+    .invoice-box table tr.heading td {
+      background: #eee;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+    
+    .invoice-box table tr.details td {
+      padding-bottom: 20px;
+    }
+    
+    .invoice-box table tr.item td{
+      border-bottom: 1px solid #eee;
+    }
+    
+    .invoice-box table tr.item.last td {
+      border-bottom: none;
+    }
+    
+    .invoice-box table tr.total td:nth-child(2) {
+      border-top: 2px solid #eee;
+      font-weight: bold;
+    }
+    
+    @media only screen and (max-width: 600px) {
+      .invoice-box table tr.top table td {
+        width: 100%;
+        display: block;
+        text-align: center;
+      }
+      
+      .invoice-box table tr.information table td {
+        width: 100%;
+        display: block;
+        text-align: center;
+      }
+    }
+    div.divFooter {
+      position: fixed;
+      height: 30px;
+      background-color: purple;
+      bottom: 0;
+      width: 100%;
+      left: 0;
+    }
+    
+    /** RTL **/
+    .rtl {
+      direction: rtl;
+      font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    }
+    
+    .rtl table {
+      text-align: right;
+    }
+    
+    .rtl table tr td:nth-child(2) {
+      text-align: left;
+    }
+    </style>
+
+<div class="pcoded-main-container">
+  <div class="invoice-box">
+    <table cellpadding="0" cellspacing="0">
+      <tr class="top">
+        <td colspan="2">
+          <table>
+            <tr>
+              <td class="title">
+                <h1>M e l o d y</h1>
+              </td>
+              <td style="text-align: right";>
+                Račun broj #: {{ invoice_year }}/1/{{ invoice_number }}<br>
+                Datum računa: 04.06.2023.<br>
+                Dospijeće: 05.06.2023.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      
+      <tr class="information">
+        <td colspan="2">
+          <table>
+            <tr>
+              <td>
+                Obrt za usluge, Vl. Marina Mihelčić<br>
+                Požega, Vjekoslava Babukića 23, <br>
+                Mob:+38598256971<br>
+                OIB: 81585778220
+              </td>
+              <td style="text-align: right;">
+                {{ user_data.studio }}<br>
+                {{ user_data.address }}<br>
+                {{ user_data.post_code }} {{ user_data.city }}<br>
+                Mob: {{ user_data.phone }}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <table>
+      <tr class="heading">
+        <td>
+          RBr
+        </td>
+        <td>
+            Opis
+        </td>
+        <td>
+            Količina
+        </td>
+        <td style="text-align: right;">
+            Cijena
+        </td>
+        <td style="text-align: right;">
+          Iznos
+        </td>
+      </tr>
+      {% set ns   = namespace() %}
+      {% set ns.c = 1 %}
+      {% set ns.t = 0 %}
+      {% set ns.SOLO_price = 0 %}
+      {% set ns.SOLO_price_base = 0 %}
+      {% set ns.SOLO_qty = 0 %}
+
+      {% set ns.DUET_price = 0 %}
+      {% set ns.DUET_price_base = 0 %}
+      {% set ns.DUET_qty = 0 %}
+
+      {% set ns.TRIO_price = 0 %}
+      {% set ns.TRIO_price_base = 0 %}
+      {% set ns.TRIO_qty = 0 %}
+
+      {% set ns.GRUPA_price = 0 %}
+      {% set ns.GRUPA_price_base = 0 %}
+      {% set ns.GRUPA_qty = 0 %}
+
+      {% set ns.FORMACIJA_price = 0 %}
+      {% set ns.FORMACIJA_price_base = 0 %}
+      {% set ns.FORMACIJA_qty = 0 %}
+
+      {% for id in invoice_data %}
+        {% if id.category == 'SOLO' %}
+          {% set ns.SOLO_price = ns.SOLO_price + id.price %}
+          {% set ns.SOLO_price_base = id.price_base %}
+          {% set ns.SOLO_qty = ns.SOLO_qty + id.qty %}
+        {% endif %}
+
+        {% if id.category == 'DUET' %}
+          {% set ns.DUET_price = ns.DUET_price + id.price %}
+          {% set ns.DUET_price_base = id.price_base %}
+          {% set ns.DUET_qty = ns.DUET_qty + id.qty %}
+        {% endif %}
+
+        {% if id.category == 'TRIO' %}
+          {% set ns.TRIO_price = ns.TRIO_price + id.price %}
+          {% set ns.TRIO_price_base = id.price_base %}
+          {% set ns.TRIO_qty = ns.TRIO_qty + id.qty %}
+        {% endif %}
+
+        {% if id.category == 'GRUPA' %}
+          {% set ns.GRUPA_price = ns.GRUPA_price + id.price %}
+          {% set ns.GRUPA_price_base = id.price_base %}
+          {% set ns.GRUPA_qty = ns.GRUPA_qty + id.qty %}
+        {% endif %}
+
+        {% if id.category == 'FORMACIJA' %}
+          {% set ns.FORMACIJA_price = ns.FORMACIJA_price + id.price %}
+          {% set ns.FORMACIJA_price_base = id.price_base %}
+          {% set ns.FORMACIJA_qty = ns.FORMACIJA_qty + id.qty %}
+        {% endif %}
+
+
+        {% set ns.t = ns.t + id.price %}
+      {% endfor %}
+
+      {% if ns.SOLO_qty|int > 0 %}
+        <tr class="item">
+          <td>
+            {{ ns.c }}
+          </td>
+          <td>
+              Kotizacija SOLO
+          </td>
+          <td>
+            {{ ns.SOLO_qty }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.SOLO_price_base }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.SOLO_price }}
+          </td>
+        </tr>
+        {% set ns.c = ns.c + 1 %}
+      {% endif %}
+
+      {% if ns.DUET_qty|int > 0 %}
+        <tr class="item">
+          <td>
+            {{ ns.c }}
+          </td>
+          <td>
+              Kotizacija DUET
+          </td>
+          <td>
+            {{ ns.DUET_qty }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.DUET_price_base }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.DUET_price }}
+          </td>
+        </tr>
+        {% set ns.c = ns.c + 1 %}
+      {% endif %}
+
+      {% if ns.TRIO_qty|int > 0 %}
+        <tr class="item">
+          <td>
+            {{ ns.c }}
+          </td>
+          <td>
+              Kotizacija TRIO
+          </td>
+          <td>
+            {{ ns.TRIO_qty }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.TRIO_price_base }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.TRIO_price }}
+          </td>
+        </tr>
+        {% set ns.c = ns.c + 1 %}
+      {% endif %}
+
+      {% if ns.GRUPA_qty|int > 0 %}
+        <tr class="item">
+          <td>
+            {{ ns.c }}
+          </td>
+          <td>
+              Kotizacija GRUPA
+          </td>
+          <td>
+            {{ ns.GRUPA_qty }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.GRUPA_price_base }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.GRUPA_price }}
+          </td>
+        </tr>
+        {% set ns.c = ns.c + 1 %}
+      {% endif %}
+
+      {% if ns.FORMACIJA_qty|int > 0 %}
+        <tr class="item">
+          <td>
+            {{ ns.c }}
+          </td>
+          <td>
+              Kotizacija FORMACIJA
+          </td>
+          <td>
+            {{ ns.FORMACIJA_qty }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.FORMACIJA_price_base }}
+          </td>
+          <td style="text-align: right;">
+            {{ ns.FORMACIJA_price }}
+          </td>
+        </tr>
+        {% set ns.c = ns.c + 1 %}
+      {% endif %}
+      <tr class="total">
+        <td colspan="5" style="text-align: right;">
+            UKUPNO: € {{ ns.t }}
+        </td>
+      </tr>
+    </table>
+    </table>
+
+    <hr>
+    
+    <table>
+        <tr><td colspan="2">Obveznik nije u sustavu PDV-a, PDV nije obračunat temeljem čl. 90 st.1 i st.2. Zakona o PDV-u (NN.,br. 73/13.).</td></tr>
+        <tr>
+          <td>
+            Uplatu izvršiti na : IBAN:HR1623600001102608103<br>
+            Model plaćanja: 02 datum<br>
+            Swift: ZABA HR 2X
+          </td>
+          <td style="text-align: right;">
+            ODGOVORNA OSOBA:
+          </td>
+        </tr>
+      </table>
+  </div>
+
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+
+{% endblock javascripts %}

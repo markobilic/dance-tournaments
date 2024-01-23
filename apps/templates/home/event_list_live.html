@@ -1,0 +1,372 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Event ordering {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://kit.fontawesome.com/ba212557d7.css" crossorigin="anonymous">
+  <script src="https://kit.fontawesome.com/ba212557d7.js" crossorigin="anonymous"></script>
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/static/assets/css/adminlte.min.css">
+
+  <!-- DataTables -->
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="/static/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10">Lista po redoslijedu</h5>
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Lista po redoslijedu</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <h3>{{ data.name }}</h3>
+                                                <h4>Date / Datum : {{ listHead.date }} </h4>
+                                                <h4>Start / Početak : {{ listHead.time }}</h4>
+                                                {% set list1 = listHead.time.split(':') %}
+                                                {% set ns   = namespace() %}
+                                                {% set ns.hour = list1[0]|int %}
+                                                {% set ns.min = list1[1]|int %}
+                                                {% set ns.sec = 0 %}
+                                                {% set ns.step_min = 0 %}
+                                                {% set ns.step_sec = 0 %}
+                                                {% set ns.c = 0 %}
+                                                {% set ns.j = 2 %}
+                                                {% set ns.grade = '' %}
+                                                {% set ns.style = 'background:red;' %}
+
+
+                                                {% for j in judges %}
+                                                    {% set ns.j = ns.j + 1 %}
+                                                {% endfor %}
+
+                                            </div>
+                                        </div>
+                                        </div>
+                                        <div class="card-block">
+                                        <form action="removeLive" method="post">
+                                            <input type="hidden" name="id_head" id="id_head" value="{{ listHead.id }}">
+                                            <input type="hidden" name="id_event" id="id_event" value="{{ listHead.id_event }}">
+                                            <button type="submit" class="btn btn-danger btn-square"><i class="feather icon-eye-off"></i></button>
+                                        </form>
+                                        {% for ac in activeCategorys %}
+
+                                            {% for c in category %}
+                                                {% if c.id|int == ac.category|int %}
+                                                    {% set list2 = c.time_lenght.split(':') %}
+                                                    {% set ns.step_min = list2[0]|int %}
+                                                    {% set ns.step_sec = list2[1]|int %}
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            {% if ns.sec >= 60 %}
+                                                {% set ns.sec = ns.sec - 60 %}
+                                                {% set ns.min = ns.min + 1 %}
+                                            {% endif %}
+                                            {% set sec_out_head = ns.sec %}
+                                            {% if ns.sec < 10 %}
+                                                {% set sec_out_head = '0' ~ ns.sec %}
+                                            {% endif %}
+
+                                            {% if ns.min >= 60 %}
+                                                {% set ns.min = ns.min - 60 %}
+                                                {% set ns.hour = ns.hour + 1 %}
+                                            {% endif %}
+                                            {% set minut_out_head = ns.min %}
+                                            {% if ns.min < 10 %}
+                                                {% set minut_out_head = '0' ~ ns.min %}
+                                            {% endif %}
+                                        
+                                            <p> </p>
+                                            <table id="orderList{{ ac.discipline }}_{{ ac.age_group }}_{{ ac.category }}_{{ ac.level }}" class="table table-bordered table-hover">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th width="100px" rowspan="2" style="vertical-align:middle;text-align: center;">{{ ns.hour }}:{{ minut_out_head }}:{{ sec_out_head }}</th>
+                                                    <th colspan="5">{{ loop.index }} - {{ ac.age_group_name }} {{ ac.discipline_name }} {{ ac.category_name }} {{ ac.level_name }}</th>
+                                                    <th>
+                                                        {% if ac.live == 1 %}
+                                                        <img src="/static/assets/images/live.png" alt="Live" style="height:25px;">
+                                                        {% else %}
+    
+                                                        <form action="eventHeadLive" method="post">
+                                                            <input type="hidden" name="id_head" id="id_head" value="{{ listHead.id }}">
+                                                            <input type="hidden" name="id_discipline" id="id_discipline" value="{{ ac.discipline }}">
+                                                            <input type="hidden" name="id_age_group" id="id_age_group" value="{{ ac.age_group }}">
+                                                            <input type="hidden" name="id_category" id="id_category" value="{{ ac.category }}">
+                                                            <input type="hidden" name="id_level" id="id_level" value="{{ ac.level }}">
+                                                            <input type="hidden" name="id_event" id="id_event" value="{{ listHead.id_event }}">
+                                                            <button type="submit" class="btn btn-success btn-square"><i class="feather icon-cast"></i></button>
+                                                        </form>
+                                                        {% endif %}
+                                                        
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th style="width:300px">Dance Title</th>
+                                                    <th >Competitor(s)</th>
+                                                    <th style="width:300px">Dance School</th>
+                                                    <th width="100px" >Entry number</th>
+                                                    <th width="100px" >Audio</th>
+                                                    <th width="100px" >Live</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% set ns.c = 0 %}
+                                                {% for a in applications %}
+                                                    {% if a.age_group == ac.age_group and a.category == ac.category and a.discipline == ac.discipline and a.level == ac.level %}
+
+                                                    {% set ns.c = ns.c + 1 %}
+
+                                                    {% if ns.sec >= 60 %}
+                                                        {% set ns.sec = ns.sec - 60 %}
+                                                        {% set ns.min = ns.min + 1 %}
+                                                    {% endif %}
+
+                                                    {% if ns.min >= 60 %}
+                                                        {% set ns.min = ns.min - 60 %}
+                                                        {% set ns.hour = ns.hour + 1 %}
+                                                    {% endif %}
+
+                                                    {% set sec_out = ns.sec %}
+                                                    {% if ns.sec < 10 %}
+                                                        {% set sec_out = '0' ~ ns.sec %}
+                                                    {% endif %}
+                                                    
+                                                    {% set minut_out = ns.min %}
+                                                    {% if ns.min < 10 %}
+                                                        {% set minut_out = '0' ~ ns.min %}
+                                                    {% endif %}
+
+                                                    {% if a.live == 1 %}
+                                                        <tr id="app_{{a.id}}" style="border: blue solid 3px;border-bottom: 0; border-left:0;">
+                                                            <td rowspan="{{ ns.j }}" style="vertical-align:middle; border: blue solid 3px; border-right:0;" ><b>{{  ns.c  }}</b> ({{ ns.hour }}:{{ minut_out }}:{{ sec_out }})</td>
+                                                    {% else %}
+                                                        <tr id="app_{{a.id}}">
+                                                            <td rowspan="{{ ns.j }}" style="vertical-align:middle;"><b>{{  ns.c  }}</b> ({{ ns.hour }}:{{ minut_out }}:{{ sec_out }})</td>
+                                                    {% endif %}
+                                                            
+                                                            <td>{{ a.choreography }}</td>
+                                                            <td>
+                                                                {% for d in a.dancers %}
+                                                                    {% if loop.index < 2 %}
+                                                                    {{ d.name }} {{ d.lastname }}
+                                                                        {% if not loop.last and loop.index < 1  %}
+                                                                            ,
+                                                                        {% endif %}
+                                                                    {% endif %}
+                                                                    {% if loop.index == 888 %}
+                                                                        ...
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </td>
+                                                            <td>{{ a.studio }}</td>
+                                                            <td>{{ a.id }}</td>
+                                                            <td>
+                                                            {% if a.live == 1 %}
+                                                            <audio title="{{ a.song_author }} / {{ a.song_name }}" controls>
+                                                                <source src="{{ a.song }}" type="audio/wav">
+                                                            </audio>
+                                                            {% endif %}
+                                                           
+                                                            </td>
+                                                            <td>
+                                                            {% if a.live == 1 %}
+                                                            <img src="/static/assets/images/live.png" alt="Live" style="height:25px;">
+                                                            {% elif ac.live == 1 %}
+                                                            <form action="eventHeadLiveChoreography" method="post">
+                                                                <input type="hidden" name="id_head" id="id_head" value="{{ listHead.id }}">
+                                                                <input type="hidden" name="id" id="id" value="{{ a.id }}">
+                                                                <input type="hidden" name="id_event" id="id_event" value="{{ listHead.id_event }}">
+                                                                <button type="submit" class="btn btn-success btn-square"><i class="feather icon-cast"></i></button>
+                                                            </form>
+                                                            {% else %}
+
+                                                            
+                                                            {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        {% if a.live == 1 %}
+                                                            <tr class="thead-dark" style="border-right: blue solid 3px;">
+                                                        {% else %}
+                                                            <tr class="thead-dark">
+                                                        {% endif %}
+
+                                                            <th>Judge</th>
+                                                            <th colspan="5">Grades</th>
+                                                        </tr>
+                                                        {% for j in judges %}
+
+                                                            
+
+                                                            {% if a.live == 1 %}
+                                                                {% if loop.last %}
+                                                                    <tr id="app_{{ a.id }}_judge_{{ j.id }}" style="border-right: blue solid 3px; border-bottom: blue solid 3px;">
+                                                                
+                                                                {% else %}
+                                                                    <tr id="app_{{ a.id }}_judge_{{ j.id }}" style="border-right: blue solid 3px;">
+
+                                                                {% endif %}
+                                                            {% else %}
+                                                                <tr id="app_{{ a.id }}_judge_{{ j.id }}">
+                                                            {% endif %}
+
+                                                                <td>
+                                                                    {{ j.name }} {{ j.lastname }}
+                                                                </td>
+                                                                <td colspan="4">
+                                                                    <div class="form-row">
+                                                                    {% set ns.total_grade = 0 %}
+                                                                    {% for g in grades %}
+                                                                    {% set ns.grade = '' %}
+                                                                    {% set ns.style = 'background:red;' %}
+
+                                                                    {% for appg in a.grades %}
+                                                                       
+                                                                        {% if appg.judge == j.id %}
+                                                                            {% if appg.id_grade == g.id %}
+                                                                                {% set ns.grade = appg.grade %}
+                                                                                {% if g.type == 'basic' or g.type == 'penalty'  %}
+                                                                                    {% set ns.total_grade = ns.total_grade + appg.grade|float  %}
+                                                                                {% endif %}
+                                                                                {% set ns.style = 'background:#37cd57; color:#495057' %}
+                                                                            {% endif %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                        <div class="col-md-1">
+                                                                            {{g.name}}<input class="form-control" type="text" data-grade-type="{{ g.type }}" readonly id="grade_{{g.id}}" value="{{ ns.grade }}" style="{{ ns.style }}">
+                                                                        </div>
+                                                                        
+                                                                    {% endfor %}
+                                                                    <div class="col-md-1">
+                                                                            Total <input class="form-control" type="text" readonly id="total_grade_judge_{{ j.id }}" value="{{ ns.total_grade }}" style="{{ ns.style }}">
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    {% if a.live == 1 %}
+                                                                        <img src="/static/assets/images/live.png" alt="Live" style="height:25px;">
+                                                                    {% endif %}
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+
+                                                        
+                                                    {% set ns.min = ns.min|int + ns.step_min|int %}
+                                                    {% set ns.sec = ns.sec|int + ns.step_sec|int %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tbody>
+                                            </table>
+                                        {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <!-- [ Main Content ] end -->
+<style>
+    td, th{
+        padding:5px !important;
+        vertical-align: middle !important;
+    }
+    .col-md-1 .form-control {
+        padding: 2px 10px;
+    }
+</style>
+   
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script>
+    var server_data = {"id_head": {{ listHead.id }}} ;
+    setInterval(function(){ 
+        $.ajax({
+            type: "POST",
+            url: "/judge_live_organizer",
+            data: JSON.stringify(server_data),
+            contentType: "application/json",
+            dataType: 'json',
+            success: function(result) {
+                console.log(result);
+                $.each( result['applications'], function( key, applications ) {
+                    //console.log( applications );
+                    id_application = applications['id'];
+                    $.each( applications['judges'][0], function( key2, judges ) {
+                        id_judge = key2;
+                        $.each( judges, function( key3, grades ) {
+                            $.each( grades, function( key4, grade ) {
+                                id_grade = key4;
+                                grade_value_new = grade;
+                                grade_value = $('#app_'+id_application+'_judge_'+id_judge+' #grade_'+id_grade+'').val();
+                                if(grade_value != grade_value_new)
+                                {
+                                    $('#app_'+id_application+'_judge_'+id_judge+' #grade_'+id_grade+'').val(grade_value_new);
+                                    $('#app_'+id_application+'_judge_'+id_judge+' #grade_'+id_grade+'').animate({ backgroundColor : "blue", color : "white" }, 2000, function(){});
+                                    if(grade_value_new > 0)
+                                    {
+                                        $('#app_'+id_application+'_judge_'+id_judge+' #grade_'+id_grade+'').animate({ backgroundColor : "#37cd57", color : "#495057" });
+                                    }
+                                    else
+                                    {
+                                        $('#app_'+id_application+'_judge_'+id_judge+' #grade_'+id_grade+'').animate({ backgroundColor : "red", color : "#495057" });
+                                    }
+                                    
+                                }
+                            });
+                        });
+                    });
+
+                });
+            }  
+        });
+    }, 3000);
+</script>
+
+{% endblock javascripts %}

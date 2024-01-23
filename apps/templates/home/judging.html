@@ -1,0 +1,335 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Judging {% endblock %} 
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<style>
+select.form-control {
+    padding: 5px 8px !important;
+    height: auto !important;
+    width: 100% !important;
+}
+tbody td {
+    padding: 10px !important;
+}
+</style>
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        <h5 class="m-b-10">Judging</h5>
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Judging</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Judging</h5>
+                                        </div>
+                                        <div class="card-block">
+                                            <div id="judging">
+                                            <h3 id="title"></h3>
+                                            <input type="hidden" name="category" id="category">
+                                            <input type="hidden" name="age_group" id="age_group">
+                                            <input type="hidden" name="discipline" id="discipline">
+                                            <input type="hidden" name="level" id="level">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+
+$(document).on('click', "#judging select", function(){
+    var total = 0;
+    var data = {};
+    id = $(this).closest('tr').attr("data-id");
+
+    $( "#judging #row_"+id+" select option:selected" ).each(function() {
+        type = $(this).parent().attr("data-type");
+        judge_category = $(this).parent().attr("data-category");
+        grade_type = $(this).parent().attr("data-grade-type");
+        value = $( this ).val();
+        
+        id_judge = {{ current_user.id }};
+
+        if(isNaN(data[judge_category])) {
+            data[judge_category] = 0;
+        }
+
+        if(grade_type == 'basic' || grade_type == 'penalty')
+        {
+            if(type == 'main')
+            {
+                data[judge_category] += parseInt(value);
+                total += parseInt(value);
+            }
+
+            if(type == 'decimal')
+            {
+                data[judge_category] += parseFloat(value);
+                total += parseFloat(value);
+            }
+        }
+        else
+        {
+            if(type == 'main')
+            {
+                data[judge_category] += parseInt(value);
+            }
+
+            if(type == 'decimal')
+            {
+                data[judge_category] += parseFloat(value);
+            }
+        }
+        
+
+    });
+    $.ajax({
+        type: "POST",
+        url: "/judge_grade",
+        data : {
+            grades : JSON.stringify(data),
+            id_judge : {{ current_user.id }},
+            id_application : id
+          },
+        success: function(result) {
+        }  
+    });
+    $('#total_'+id).html(total.toFixed(1));
+  });
+
+    var server_data = {"judge": {{ current_user.id }}} ;
+
+
+    setInterval(function(){ 
+        console.log('5 sec')
+        const application_total_grades = {};
+        $('.judge_app_row').each(function(index, tr) { 
+            id_application = $(this).attr("data-id");
+            //console.log(id_application);
+            
+            if(id_application > 0)
+            {
+                total = 0;
+                $('#row_'+id_application+" select option:selected").each(function(index, tr) { 
+                    
+                    type = $(this).parent().attr("data-type");
+                    judge_category = $(this).parent().attr("data-category");
+                    grade_type = $(this).parent().attr("data-grade-type");
+                    value = $( this ).val();
+                    
+                    if(grade_type == 'basic' || grade_type == 'penalty')
+                    {
+                        if(type == 'main')
+                        {
+                            total += parseInt(value);
+                        }
+
+                        if(type == 'decimal')
+                        {
+                            total += parseFloat(value);
+                        }
+                    }
+
+                });
+                
+
+                application_total_grades[id_application] = parseFloat(total).toFixed(2);
+                
+            }
+            
+            
+            
+        });
+        let sortable = [];
+        for (var atg in application_total_grades) {
+            sortable.push([atg, application_total_grades[atg]]);
+        }
+
+        sortable.sort(function(a, b) {
+            return b[1] - a[1];
+        });
+        for (let i = 0; i < sortable.length; i++) {
+            console.log(sortable[i][0])
+            console.log(sortable[i][1])
+            $('#row_'+sortable[i][0]+' [data-grade-type="position"]').val((i+1)); 
+            $('#row_'+sortable[i][0]+' [data-grade-type="position"]').trigger( "click" );
+        }
+
+    }, 5000);
+
+    setInterval(function(){ 
+        $.ajax({
+            type: "POST",
+            url: "/judge_live",
+            data: JSON.stringify(server_data),
+            contentType: "application/json",
+            dataType: 'json',
+            success: function(result) {
+
+                if(!(result['id_category'] > 0))
+                {
+                    $('#title').text('No data');
+                    $('#judging table').remove();
+                }
+                else
+                {
+
+                    id_discipline = $('#discipline').val()
+                    id_category = $('#category').val()
+                    id_age_group = $('#age_group').val()
+                    id_level = $('#level').val()
+                    if(id_discipline != result['id_discipline'] || id_category != result['id_category'] || id_age_group != result['id_age_group'] || id_level != result['id_level'] )
+                    {
+                        $('#discipline').val(result['id_discipline']);
+                        $('#category').val(result['id_category']);
+                        $('#age_group').val(result['id_age_group']);
+                        $('#level').val(result['id_level']);
+                        $('#title').text(result['age_group_name'] + ' ' + result['discipline_name'] + ' '+ result['category_name'] + ' '+ result['level_name']);
+                        $('#judging table').remove();
+
+                        $.each( result['applications'], function( key, value ) {
+
+                            disabled = 'disabled';
+                            output = '<table class="table table-bordered">'+
+                                                '<thead class="thead-dark">'+
+                                                        '<tr>'+
+                                                            '<th>Choreohraphy #'+value.id+'</th>'+
+                                                            '<th colspan="6">'+value.choreography+'</th>'+
+                                                        '</tr>'+
+                                                    '</thead>'+
+                                                    '<thead>'+
+                                                    '<tr>';
+                            $.each( result['event_grades'], function( key2, value2 ) {
+                                output += '<th>'+value2.name+'</th>';
+                            });
+                            output += '<th>Total</th></tr>'+
+                                                    '</thead>'+
+                                                    '<tr id="row_'+value.id+'" data-id="'+value.id+'" class="judge_app_row">';
+                            $.each( result['event_grades'], function( key2, value2 ) {
+                                output += '<td>'+
+                                        '<div class="row">'+
+                                            '<div class="col">'+
+                                                '<select '+disabled+' class="form-control" data-type="main" data-grade-type="'+value2.type+'" data-category="'+value2.id+'" name="judging">';
+                                for (let i = 0; i <= value2.max_number; i++) {
+                                    if(value2.type == 'basic')
+                                    {   
+                                        out_i = i;
+                                        if(i < 10)
+                                        {
+                                            out_i = '0' + i;
+                                        }
+                                        output += '<option value="'+i+'">'+out_i+'</option>';
+                                    }
+
+                                    if(value2.type == 'penalty')
+                                    {   
+                                        out_i = -i;
+                                        if(i < 10)
+                                        {
+                                            out_i = '-0' + i;
+                                        }
+                                        output += '<option value="'+-i+'">'+out_i+'</option>';
+                                    }
+
+                                    if(value2.type == 'position')
+                                    {   
+                                        out_i = i;
+                                        if(i < 10)
+                                        {
+                                            out_i = '0' + i;
+                                        }
+                                        output += '<option value="'+i+'">'+out_i+'</option>';
+                                    }
+                                
+                                }
+
+                                if(value2.type == 'basic' || value2.type == 'penalty')
+                                {
+                                    output +='</select>'+
+                                                '</div>'+
+                                                '<div class="col">'+
+                                                    '<select '+disabled+' class="form-control" data-type="decimal" data-grade-type="'+value2.type+'" data-category="'+value2.id+'" name="judging">';
+                                    for (let i = 0; i < 10; i++) {
+                                        if(value2.type == 'basic')
+                                        {   
+                                            out_i = '0.' + i;
+                                            output += '<option value="'+out_i+'">'+out_i+'</option>';
+                                        }
+
+                                        if(value2.type == 'penalty')
+                                        {   
+                                            out_i = '-0.' + i;
+                                            output += '<option value="'+out_i+'">'+out_i+'</option>';
+                                        }
+                                    
+                                    }
+                                     output += '</select>';
+                                }
+                                output += '</div>'+
+                                            '</div>'+
+                                    '</td>';
+                            });
+                                                        
+                            output +='<td><h4><span id="total_'+value.id+'"></span></h4></td>'+
+                                                    '</tr>'+
+                                                '</table>';
+                            $('#judging').append(output);
+                        });
+                    }
+                    else
+                    {
+                        $.each( result['applications'], function( key, value ) {
+                            if(value.live == 1)
+                            {
+                                $('#judging table #row_'+value.id +' select').removeAttr('disabled');
+                                $('#judging table #row_'+value.id).css("border", "3px solid #4f4fef").animate({},500);
+                            }
+                            else
+                            {
+                                $('#judging table #row_'+value.id).css("border", "none").animate({},500);
+                            }
+                        });
+                    }
+                }
+            }  
+        });
+    }, 1000);
+</script>
+{% endblock javascripts %}

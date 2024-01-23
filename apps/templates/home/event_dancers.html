@@ -1,0 +1,126 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dancers {% endblock %} 
+
+<!-- Element injected in the BODY element -->
+{% block body_class %} {% endblock body_class %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+
+
+<link href="https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.13.4/af-2.5.3/b-2.3.6/b-colvis-2.3.6/b-html5-2.3.6/b-print-2.3.6/cr-1.6.2/date-1.4.1/fc-4.2.2/fh-3.3.2/kt-2.9.0/r-2.4.1/rg-1.3.1/rr-1.3.3/sc-2.1.1/sb-1.4.2/sp-2.1.2/sl-1.6.2/sr-1.2.2/datatables.min.css" rel="stylesheet"/>
+ 
+
+
+
+
+{% endblock stylesheets %}
+
+
+{% block content %}
+
+<div class="pcoded-main-container">
+  <div class="pcoded-wrapper">
+      <div class="pcoded-content">
+          <div class="pcoded-inner-content">
+              <!-- [ breadcrumb ] start -->
+              <div class="page-header">
+                  <div class="page-block">
+                      <div class="row align-items-center">
+                          <div class="col-md-12">
+                              <div class="page-header-title">
+                                  <h5 class="m-b-10">Dancers</h5>
+                              </div>
+                              <ul class="breadcrumb">
+                                  <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                  <li class="breadcrumb-item"><a href="javascript:">Dancers</a></li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <!-- [ breadcrumb ] end -->
+              <div class="main-body">
+                  <div class="page-wrapper">
+                      <!-- [ Main Content ] start -->
+                      <div class="row">
+                          <div class="col-sm-12">
+                              <div class="card">
+                                  <div class="card-header">
+                                    
+
+                                      <h3 class="card-title">
+                                      {% if current_user.role == 'user' %}
+                                        <button type="button" class="btn btn-primary btn-square" data-toggle="modal" data-target="#newDancer">
+                                        Novi / New 
+                                        </button>
+                                      {% endif %}
+                                     <span>{{ msg }}</span></h3>
+                                  </div>
+                                  <div class="card-block">
+                                    <table id="dancers" class="table table-bordered table-hover">
+                                      <thead>
+                                        <tr>
+                                          <th style="width: 10px">#</th>
+                                          <th>Studio</th>
+                                          <th>Ime</th>
+                                          <th>Prezime</th>
+                                          <th>Datum rođenja</th>
+                                          <th>Spol</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {% for dancer in data %}
+                                        <tr>
+                                          <td>{{ loop.index }}</td>
+                                          <td>{{ dancer.studio }}</td>
+                                          <td>{{ dancer.name }}</td>
+                                          <td>{{ dancer.lastname }}</td>
+                                          <td>{{ dancer.birth_date }}</td>
+                                          <td>{{ dancer.sex }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <!-- [ Main Content ] end -->
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/v/bs5/jszip-2.5.0/dt-1.13.4/af-2.5.3/b-2.3.6/b-colvis-2.3.6/b-html5-2.3.6/b-print-2.3.6/cr-1.6.2/date-1.4.1/fc-4.2.2/fh-3.3.2/kt-2.9.0/r-2.4.1/rg-1.3.1/rr-1.3.3/sc-2.1.1/sb-1.4.2/sp-2.1.2/sl-1.6.2/sr-1.2.2/datatables.min.js"></script>
+
+ <script>
+   $(document).ready(function () {
+     $('#dancers').DataTable({
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'excel', 'pdf'
+        ],
+       "pageLength": 100,
+       "paging": true,
+       "lengthChange": true,
+       "searching": true,
+       "ordering": true,
+       "info": true,
+       "autoWidth": false,
+       "responsive": true,
+        
+     });
+   });
+ </script>
+
+{% endblock javascripts %}

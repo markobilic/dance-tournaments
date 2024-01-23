@@ -7,6 +7,37 @@ from flask_login import UserMixin
 from datetime import datetime
 from apps import db, login_manager
 
+class Judges(db.Model):
+    __tablename__ = 'Judges'
+    id          = db.Column(db.Integer, primary_key=True)
+    id_user     = db.Column(db.String)
+    name        = db.Column(db.String)
+    lastname    = db.Column(db.String)
+    username    = db.Column(db.String)
+    email       = db.Column(db.String)
+
+    def __init__(self, id_user, name, lastname, username, email):
+        self.id_user    = id_user
+        self.name       = name
+        self.lastname   = lastname
+        self.username   = username
+        self.email      = email
+
+class Application_judging(db.Model):
+    __tablename__ = 'Application_judging'
+    id              = db.Column(db.Integer, primary_key=True)
+    id_application  = db.Column(db.Integer)
+    id_judge        = db.Column(db.Integer)
+    id_grade        = db.Column(db.Integer)
+    grade           = db.Column(db.String)
+
+    def __init__(self, id_application, id_judge, id_grade, grade):
+        self.id_application = id_application
+        self.id_judge       = id_judge
+        self.id_grade       = id_grade
+        self.grade          = grade
+
+
 class Dancers(db.Model):
     __tablename__ = 'Dancers'
     id              = db.Column(db.Integer, primary_key=True)
@@ -66,8 +97,9 @@ class Application(db.Model):
     song_author     = db.Column(db.String)
     song_name       = db.Column(db.String)
     entered_date    = db.Column(db.String)
+    live            = db.Column(db.Integer)
     
-    def __init__(self, id_event, user_id, choreography, choreograph, age_group, discipline, category, federation, level, audio, song_author, song_name, entered_date):
+    def __init__(self, id_event, user_id, choreography, choreograph, age_group, discipline, category, federation, level, audio, song_author, song_name, entered_date, live):
         self.id_event        = id_event
         self.user_id         = user_id
         self.choreography    = choreography
@@ -81,6 +113,7 @@ class Application(db.Model):
         self.song_author     = song_author
         self.song_name       = song_name
         self.entered_date    = entered_date
+        self.live            = live
 
 class Application_dancer(db.Model):
     __tablename__ = 'Application_dancer'
@@ -107,8 +140,16 @@ class Category(db.Model):
     name            = db.Column(db.String)
     min_dancers     = db.Column(db.Integer)
     max_dancers     = db.Column(db.Integer)
-    price           = db.Column(db.Integer)
+    time_lenght     = db.Column(db.String)
+    price           = db.Column(db.String)
     active          = db.Column(db.Integer)
+
+class Grades(db.Model):
+    __tablename__ = 'Grades'
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String)
+    max_number  = db.Column(db.Integer)
+    type        = db.Column(db.String)
 
 class Discipline(db.Model):
     __tablename__ = 'Discipline'
@@ -174,21 +215,41 @@ class Event_level(db.Model):
         self.id_event   = id_event
         self.id_level   = id_level
 
+class Event_judges(db.Model):
+    __tablename__ = 'Event_judges'
+    id          = db.Column(db.Integer, primary_key=True)
+    id_event    = db.Column(db.Integer)
+    id_judges   = db.Column(db.Integer)
+    def __init__(self, id_event, id_judges):
+        self.id_event   = id_event
+        self.id_judges  = id_judges
+
+class Event_grades(db.Model):
+    __tablename__ = 'Event_grades'
+    id          = db.Column(db.Integer, primary_key=True)
+    id_event    = db.Column(db.Integer)
+    id_grades   = db.Column(db.Integer)
+    def __init__(self, id_event, id_grades):
+        self.id_event   = id_event
+        self.id_grades  = id_grades
+
 class Event_category_ordering(db.Model):
     __tablename__ = 'Event_category_ordering'
     id              = db.Column(db.Integer, primary_key=True)
-    id_head        = db.Column(db.Integer)
+    id_head         = db.Column(db.Integer)
     id_age_group    = db.Column(db.Integer)
     id_discipline   = db.Column(db.Integer)
     id_category     = db.Column(db.Integer)
+    id_level        = db.Column(db.Integer)
     eo              = db.Column(db.Integer)
     live            = db.Column(db.Integer)
 
-    def __init__(self, id_head, id_age_group, id_discipline, id_category, eo, live):
-        self.id_head       = id_head
+    def __init__(self, id_head, id_age_group, id_discipline, id_category, id_level, eo, live):
+        self.id_head        = id_head
         self.id_age_group   = id_age_group
         self.id_discipline  = id_discipline
         self.id_category    = id_category
+        self.id_level       = id_level
         self.eo             = eo
         self.live           = live
 
@@ -204,3 +265,18 @@ class Event_category_ordering_head(db.Model):
         self.id_event   = id_event
         self.date       = date
         self.time       = time
+
+
+class Event_invoice(db.Model):
+    __tablename__ = 'Event_invoice'
+    id              = db.Column(db.Integer, primary_key=True)
+    id_event        = db.Column(db.Integer)
+    id_user         = db.Column(db.Integer)
+    invoice_number  = db.Column(db.Integer)
+    year            = db.Column(db.Integer)
+
+    def __init__(self, id_event, id_user, invoice_number, year):
+        self.id_event       = id_event
+        self.id_user        = id_user
+        self.invoice_number = invoice_number
+        self.year           = year

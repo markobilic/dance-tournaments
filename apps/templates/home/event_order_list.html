@@ -19,7 +19,7 @@
   <!-- DataTables -->
   <link rel="stylesheet" href="/static/assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="/static/assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-print-css/css/bootstrap-print.min.css" media="print">
 {% endblock stylesheets %}
 
 
@@ -47,61 +47,134 @@
                             </div>
                         </div>
                     </div>
+                        
                     <!-- [ breadcrumb ] end -->
-                    <div class="main-body">
+                    <div class="main-body" id="main-body">
                         <div class="page-wrapper">
                             <!-- [ Main Content ] start -->
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <div class="card">
+                                    <button class="printMe btn btn-square btn-primary"><i class="feather icon-printer"></i> Print</button>
+                                    <div class="card" id="printDiv">
                                         <div class="card-header">
                                         <div class="row">
                                             <div class="col-sm-12">
                                                 <h3>{{ data.name }}</h3>
                                                 <h4>Date / Datum : {{ listHead.date }} </h4>
                                                 <h4>Start / Početak : {{ listHead.time }}</h4>
+                                                {% set list1 = listHead.time.split(':') %}
+                                                {% set ns   = namespace() %}
+                                                {% set ns.hour = list1[0]|int %}
+                                                {% set ns.min = list1[1]|int %}
+                                                {% set ns.sec = 0 %}
+                                                {% set ns.step_min = 0 %}
+                                                {% set ns.step_sec = 0 %}
+                                                {% set ns.c = 0 %}
+                                                {% set ns.av = 0 %}
+
                                             </div>
                                         </div>
                                         </div>
                                         <div class="card-block">
                                         {% for ac in activeCategorys %}
-                                        <p>{{ loop.index }} - {{ ac.age_group_name }} {{ ac.discipline_name }} {{ ac.category_name }}</p>
-                                        <table id="orderList{{ loop.index }}" class="table table-bordered table-hover">
-                                          <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Dance Title</th>
-                                                <th>Age</th>
-                                                <th>Competitor(s)</th>
-                                                <th>Dance School</th>
-                                                <th>Entry number</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            {% set ns = namespace(c = 0) %}
-                                            {% for a in applications %}
-                                                {% if a.age_group == ac.age_group and a.category == ac.category and a.discipline == ac.discipline %}
-                                                {% set ns.c = ns.c + 1 %}
-                                                    <tr>
-                                                    <td>{{  ns.c  }}</td>
-                                                    <td>{{ a.choreography }}</td>
-                                                    <td>{{ '%0.2f'| format(a.age_average|float) }}</td>
-                                                    <td>
-                                                        {% for d in a.dancers %}
-                                                            {{ d.name }} {{ d.lastname }}
-                                                            {% if not loop.last %}
-                                                                ,
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </td>
-                                                    <td>{{ a.studio }}</td>
-                                                    <td>{{ a.id }}</td>
-                                                    
-                                                    </tr>
+
+                                            {% for c in category %}
+                                                {% if c.id|int == ac.category|int %}
+                                                    {% set list2 = c.time_lenght.split(':') %}
+                                                    {% set ns.step_min = list2[0]|int %}
+                                                    {% set ns.step_sec = list2[1]|int %}
                                                 {% endif %}
                                             {% endfor %}
-                                          </tbody>
-                                        </table>
+
+                                            {% if ns.sec >= 60 %}
+                                                {% set ns.sec = ns.sec - 60 %}
+                                                {% set ns.min = ns.min + 1 %}
+                                            {% endif %}
+                                            {% set sec_out_head = ns.sec %}
+                                            {% if ns.sec < 10 %}
+                                                {% set sec_out_head = '0' ~ ns.sec %}
+                                            {% endif %}
+
+                                            {% if ns.min >= 60 %}
+                                                {% set ns.min = ns.min - 60 %}
+                                                {% set ns.hour = ns.hour + 1 %}
+                                            {% endif %}
+                                            {% set minut_out_head = ns.min %}
+                                            {% if ns.min < 10 %}
+                                                {% set minut_out_head = '0' ~ ns.min %}
+                                            {% endif %}
+                                        
+                                            <p> </p>
+                                            <table id="orderList{{ loop.index }}" class="table table-bordered table-hover">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th width="100px" rowspan="2" style="vertical-align:middle;text-align: center;">{{ ns.hour }}:{{ minut_out_head }}:{{ sec_out_head }}</th>
+                                                    <th colspan="5" style="text-align:left">{{ loop.index }} - {{ ac.age_group_name }} {{ ac.discipline_name }} {{ ac.category_name }} {{ ac.level_name }}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th style="width:300px; text-align:left">Dance Title</th>
+                                                    <th width="50px" style="text-align:left">Age</th>
+                                                    <th style="text-align:left">Competitor(s)</th>
+                                                    <th style="width:300px; text-align:left">Dance School</th>
+                                                    <th style="text-align:left" width="100px" >Entry number</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% set ns.c = 0 %}
+                                                {% for a in applications %}
+                                                    {% set ns.av = 0 %}
+                                                    {% if a.age_group == ac.age_group and a.category == ac.category and a.discipline == ac.discipline and a.level == ac.level %}
+
+                                                    {% set ns.c = ns.c + 1 %}
+
+                                                    {% if ns.sec >= 60 %}
+                                                        {% set ns.sec = ns.sec - 60 %}
+                                                        {% set ns.min = ns.min + 1 %}
+                                                    {% endif %}
+
+                                                    {% if ns.min >= 60 %}
+                                                        {% set ns.min = ns.min - 60 %}
+                                                        {% set ns.hour = ns.hour + 1 %}
+                                                    {% endif %}
+
+                                                    {% set sec_out = ns.sec %}
+                                                    {% if ns.sec < 10 %}
+                                                        {% set sec_out = '0' ~ ns.sec %}
+                                                    {% endif %}
+                                                    
+                                                    {% set minut_out = ns.min %}
+                                                    {% if ns.min < 10 %}
+                                                        {% set minut_out = '0' ~ ns.min %}
+                                                    {% endif %}
+                                                    {% if a.age_average %}
+                                                        {% set ns.av = '%0.2f'| format(a.age_average|float) %}
+                                                    {% endif %}
+                                                        <tr>
+                                                        <td><b>{{  ns.c  }}</b> ({{ ns.hour }}:{{ minut_out }}:{{ sec_out }})</td>
+                                                        <td>{{ a.choreography }}</td>
+                                                        <td>{{ ns.av }}</td>
+                                                        <td>
+                                                            {% for d in a.dancers %}
+                                                                {% if loop.index < 6 %}
+                                                                {{ d.name }} {{ d.lastname }}
+                                                                    {% if not loop.last and loop.index < 5  %}
+                                                                        ,
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                                {% if loop.index == 6 %}
+                                                                    ...
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>{{ a.studio }}</td>
+                                                        <td>{{ a.id }}</td>
+                                                        </tr>
+                                                    {% set ns.min = ns.min|int + ns.step_min|int %}
+                                                    {% set ns.sec = ns.sec|int + ns.step_sec|int %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tbody>
+                                            </table>
                                         {% endfor %}
                                         </div>
                                     </div>
@@ -113,15 +186,26 @@
                 </div>
             </div>
         </div>
-        
     </div>
     <!-- [ Main Content ] end -->
 
-   
+    
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 
+
+<script>
+
+    $('.printMe').click(function(){
+        var printContents = document.getElementById('printDiv').innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        
+    });
+</script>
 
 {% endblock javascripts %}
